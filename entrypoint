@@ -71,5 +71,5 @@ fi
 
 cd ~
     echo "Starting Monster-UI ..."
-    su apache -c "exec httpd -f /etc/httpd/conf/httpd.conf -e $HTTPD_LOGLEVEL -DFOREGROUND"
+    exec httpd -f /etc/httpd/conf/httpd.conf -e $HTTPD_LOGLEVEL -DFOREGROUND
 

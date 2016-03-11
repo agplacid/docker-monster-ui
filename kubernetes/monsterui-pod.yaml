@@ -1,0 +1,22 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: monsterui
+  labels:
+    app: monsterui
+    role: user-interface
+spec:
+  containers:
+    - name: whapps
+      image: callforamerica/monsterui
+      imagePullPolicy: Always
+      ports:
+        - name: http
+          protocol: TCP
+          containerPort: 80
+        - name: https
+          protocol: TCP
+          containerPort: 443
+    - name: dns
+      image: callforamerica/go-dnsmasq
+  restartPolicy: Always
