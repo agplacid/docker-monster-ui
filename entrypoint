@@ -17,8 +17,6 @@ get_nodeport_for() {
     echo -n $NODEPORT
 }
 
-curl -sSLk -H "Authorization: Bearer $API_TOKEN" $SERVICES_URL | jq -r ".items[] | select(.metadata.name == \"${SERVICE}\") | .spec.ports[0].nodePort"
-
 get_crossbar_api_uri_esc() {
     local PORT=$(get_nodeport_for 'whapps')
     # [fixme] change this to the load balancer
