@@ -11,18 +11,20 @@ MONSTERUI_DISABLE_BRAINTREE=${MONSTERUI_DISABLE_BRAINTREE:-true}
 get_nodeport_for() {
     local SERVICE=$1
     local API_URL=$(dig +short +search kubernetes)
-    local SERVICES_URL="$API_URL/api/v1/services"
+    local SERVICES_URL="https://$API_URL/api/v1/services"
     local API_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-    local NODEPORT=$(curl -sSLk -H "Authorization: Bearer $API_TOKEN" $SERVICES_URL | jq -r "items[] | select(.metadata.name == \"${SERVICE}\") | .spec.ports[0].nodePort")
+    local NODEPORT=$(curl -sSLk -H "Authorization: Bearer $API_TOKEN" $SERVICES_URL | jq -r ".items[] | select(.metadata.name == \"${SERVICE}\") | .spec.ports[0].nodePort")
     echo -n $NODEPORT
 }
+
+curl -sSLk -H "Authorization: Bearer $API_TOKEN" $SERVICES_URL | jq -r ".items[] | select(.metadata.name == \"${SERVICE}\") | .spec.ports[0].nodePort"
 
 get_crossbar_api_uri_esc() {
     local PORT=$(get_nodeport_for 'whapps')
     # [fixme] change this to the load balancer
     local ADDR='adeno.valuphone.com'
     local ADDR_ESC=$(echo $ADDR | sed 's/\./\\\./g')
-    echo -n "http:\/\/${DRR_ESC}:${PORT}\/v2\/"
+    echo "http:\/\/${ADDR_ESC}:${PORT}\/v2\/"
 }
 
 rewrite_crossbar_api_url() {
