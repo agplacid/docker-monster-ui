@@ -4,6 +4,7 @@ metadata:
   name: monsterui
   labels:
     app: monsterui
+    project: valuphone
     role: user-interface
 spec:
   containers:
@@ -17,6 +18,23 @@ spec:
         - name: https
           protocol: TCP
           containerPort: 443
-    - name: dns
-      image: callforamerica/go-dnsmasq
+      resources:
+        requests:
+          cpu: 2
+          memory: 1G
+        limits:
+          cpu: 2
+          memory: 1G 
+      readinessProbe:
+        httpGet:
+          path: /monster-ui
+          port: 80
+        initialDelaySeconds: 15
+        timeoutSeconds: 3
+      livenessProbe:
+        httpGet:
+          path: /monster-ui
+          port: 80
+        initialDelaySeconds: 15
+        timeoutSeconds: 3
   restartPolicy: Always

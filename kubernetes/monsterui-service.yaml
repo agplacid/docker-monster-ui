@@ -1,0 +1,22 @@
+kind: Service
+apiVersion: v1
+metadata: 
+  name: monsterui
+  labels:
+    app: monsterui
+    project: valuphone
+    role: user-interface
+spec:
+  selector:
+    app: monsterui
+    project: valuphone
+  type: NodePort
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      nodePort: 80
+    - name: https
+      protocol: TCP
+      port: 443
+      nodePort: 443
