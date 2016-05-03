@@ -5,6 +5,9 @@ HTTPD_GROUP=${HTTPD_GROUP:-apache}
 HTTPD_LANG=${HTTPD_LANG-"C"}
 HTTPD_LOGLEVEL=${HTTPD_LOGLEVEL:-info}
 
+API_HOST=${API_HOST:-api.valuphone.com}
+API_PORT=8443
+
 MONSTERUI_ENABLE_SMARTPBX_CALLFLOWS=${MONSTERUI_ENABLE_SMARTPBX_CALLFLOWS:-true}
 MONSTERUI_DISABLE_BRAINTREE=${MONSTERUI_DISABLE_BRAINTREE:-true}
 
@@ -18,11 +21,10 @@ get_nodeport_for() {
 }
 
 get_crossbar_api_uri_esc() {
-    local PORT=$(get_nodeport_for 'whapps')
-    # [fixme] change this to the load balancer
-    local ADDR='adeno.valuphone.com'
+    local PORT=$API_PORT
+    local ADDR=$API_HOST
     local ADDR_ESC=$(echo $ADDR | sed 's/\./\\\./g')
-    echo "http:\/\/${ADDR_ESC}:${PORT}\/v2\/"
+    echo "https:\/\/${ADDR_ESC}:${PORT}\/v2\/"
 }
 
 rewrite_crossbar_api_url() {

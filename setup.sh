@@ -39,12 +39,16 @@ yum -y install monster-ui*
 
 
 echo "Installing extras ..."
-yum -y install bind-utils
+yum -y install bind-utils git
 
 echo "Installing JQ ..."
 curl -o /usr/local/bin/jq -sSL https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
 chmod +x /usr/local/bin/jq
 
+
+echo "Installing api-explorer ..."
+cd /var/www/html/monster-ui/apps
+	git clone https://github.com/siplabs/monster-ui-apiexplorer
 
 # In the future, install other monster-ui components here #
 
