@@ -51,7 +51,7 @@ rewrite_company_name() {
 }
 
 # Apache gets grumpy about PID files pre-existing
-rm -f /var/run/httpd/httpd.pid 
+rm -f /var/run/httpd/httpd.pid
 
 
 echo "Rewriting monster-ui config.js ..."

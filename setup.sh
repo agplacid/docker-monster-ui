@@ -53,7 +53,16 @@ chmod +x /usr/local/bin/jq
 
 echo "Installing api-explorer ..."
 cd /var/www/html/monster-ui/apps
-	git clone https://github.com/siplabs/monster-ui-apiexplorer
+	git clone https://github.com/siplabs/monster-ui-apiexplorer apiexplorer
+
+echo "Adding highlight.js and clipboard.js to require.config paths ..."
+sed -ir 's/\(config:\"js\/config\",\)/\1hljs:\"apps\/apiexplorer\/lib\/highlight\.pack\",clipboard:\"apps\/apiexplorer\/lib\/clipboard\.min\",/' /var/www/html/monster-ui/js/main.js
+
+echo "Adding Handlebars to apiexplorer's app.js require's ..."
+sed -ir "/[(]'jqueryui'[)],/a \
+    \                Handlebars = require('handlebars')," /var/www/html/monster-ui/apps/apiexplorer/app.js
+
+
 
 # In the future, install other monster-ui components here #
 
