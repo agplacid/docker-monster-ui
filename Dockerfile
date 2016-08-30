@@ -23,7 +23,7 @@ COPY    entrypoint /usr/bin/entrypoint
 
 ENV     NGINX_LOG_LEVEL=info
 
-ENV     CROSSBAR_URL=https://api.valuphone.com:8443
+ENV     CROSSBAR_URI=https://api.valuphone.com:8443
         
 ENV     ENABLE_SMARTPBX_CALLFLOWS=true \
         DISABLE_BRAINTREE=false \

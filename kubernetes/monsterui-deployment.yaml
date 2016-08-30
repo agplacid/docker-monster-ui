@@ -19,7 +19,7 @@ spec:
           env:
             - name: NGINX_LOG_LEVEL
               value: info
-            - name: CROSSBAR_URL
+            - name: CROSSBAR_URI
               value: https://api.valuphone.com:8443
             - name: ENABLE_SMARTPBX_CALLFLOWS
               value: 'true'
