@@ -2,55 +2,56 @@ apiVersion: v1
 kind: ReplicationController
 metadata:
   name: monsterui
-  labels:
-    app: monsterui
-    project: valuphone
-    role: user-interface
 spec:
   replicas: 1
-  selector:
-    app: monsterui
-    project: valuphone
   template:
     metadata:
       name: monsterui
       labels:
         app: monsterui
         project: valuphone
+        environment: production
     spec:
       containers:
         - name: monsterui
           image: callforamerica/monsterui
+          env:
+            - name: NGINX_LOG_LEVEL
+              value: info
+            - name: CROSSBAR_URL
+              value: https://api.valuphone.com:8443
+            - name: ENABLE_SMARTPBX_CALLFLOWS
+              value: 'true'
+            - name: DISABLE_BRAINTREE
+              value: 'false'
+            - name: COMPANY_NAME
+              value: Valuphone
+            - name: APPLICATION_TITLE
+              value: Valuphone
+            - name: CALL_REPORT_EMAIL
+              value: support@valuphone.com  
           ports:
             - name: http
               protocol: TCP
               containerPort: 80
-            - name: https
-              protocol: TCP
-              containerPort: 443
-          env:
-            - name: MONSTERUI_DISABLE_BRAINTREE
-              value: 'false'
-          imagePullPolicy: Always
           resources:
             requests:
-              cpu: 2
+              cpu: 1
               memory: 1G
             limits:
-              cpu: 2
+              cpu: 1
               memory: 1G 
           readinessProbe:
             httpGet:
-              path: /monster-ui
+              path: /
               port: 80
-            initialDelaySeconds: 15
-            timeoutSeconds: 3
+            initialDelaySeconds: 45
+            timeoutSeconds: 15
           livenessProbe:
             httpGet:
-              path: /monster-ui
+              path: /
               port: 80
-            initialDelaySeconds: 15
-            timeoutSeconds: 3
-        - name: dns
-          image: callforamerica/go-dnsmasq
+            initialDelaySeconds: 45
+            timeoutSeconds: 15
+          imagePullPolicy: Always
       restartPolicy: Always

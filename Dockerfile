@@ -1,31 +1,44 @@
-FROM centos:6
+FROM    nginx
 
 MAINTAINER joe <joe@valuphone.com>
 
 LABEL   os="linux" \
-        os.distro="centos" \
-        os.version="6"
+        os.distro="debian" \
+        os.version="jessie"
 
-LABEL   image.name="monster-ui" \
-        image.version="1"
+LABEL   image.name="monsterui" \
+        image.version="3.22"
 
-ENV     TERM=xterm
+ENV     MONSTER_UI_VERSION=3.22
+
+ENV     HOME=/opt/monsterui
+ENV     PATH=$HOME:$PATH
 
 COPY    setup.sh /tmp/setup.sh
 RUN     /tmp/setup.sh
 
+COPY    nginx.conf /etc/nginx/nginx.conf
+
 COPY    entrypoint /usr/bin/entrypoint
 
-ENV     HOME=/var/www \
-        PATH=/var/www/bin:$PATH \
-        KUBERNETES_HOSTNAME_FIX=true
+ENV     NGINX_LOG_LEVEL=info
 
-VOLUME  ["/var/www/html/monster-ui"]
+ENV     CROSSBAR_URL=https://api.valuphone.com:8443
+        
+ENV     ENABLE_SMARTPBX_CALLFLOWS=true \
+        DISABLE_BRAINTREE=false \
+        ENABLE_PROVISIONER=false
 
-EXPOSE  80 443
+ENV     COMPANY_NAME=Valuphone \
+        APPLICATION_TITLE=Valuphone \
+        CALL_REPORT_EMAIL=support@valuphone.com
 
-# USER    apache
+EXPOSE  80
 
-WORKDIR /var/www
+VOLUME  ["/var/www/html"]
+
+# USER    monsterui
+
+WORKDIR /opt/monsterui
 
 CMD     ["/usr/bin/entrypoint"]
