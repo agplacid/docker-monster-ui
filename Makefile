@@ -51,7 +51,7 @@ launch:
 	@docker run -d --name $(NAME) -h monsterui  -p "80:80" --cap-add NET_ADMIN $(LOCAL_TAG)
 
 launch-net:
-	@docker run -d --name $(NAME) -h monsterui -e "CROSSBAR_URI=http://whapps:8000" --network=local --net-alias monsterui $(LOCAL_TAG)
+	@docker run -d --name $(NAME) -h monsterui -e "CROSSBAR_URI=http://docker.local:8000" --network=local -p "8080:80" $(LOCAL_TAG)
 
 create-network:
 	@docker network create -d bridge local

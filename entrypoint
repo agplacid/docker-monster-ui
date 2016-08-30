@@ -11,7 +11,7 @@ set -e
 : ${NGINX_ACCESS_LOG:=on}
 
 : ${CROSSBAR_URI:=https://api.valuphone.com:8443}
-: ${PROVISIONER_URL:=http://p.valuphone.com/}
+: ${PROVISIONER_URL:=http://p.valuphone.com}
 
 : ${ENABLE_SMARTPBX_CALLFLOWS:=true}
 : ${ENABLE_PROVISIONER:=false}
@@ -40,7 +40,7 @@ cat /etc/nginx/nginx.conf
 echo "Configuring monster-ui ..."
 
 echo "Rewriting crossbar api url ..."
-cesc=$(echo "$CROSSBAR_URI" | sed 's/\//\\\//g')
+cesc=$(echo "$CROSSBAR_URI/v2/" | sed 's/\//\\\//g')
 sed -ir "/default:/s/http.*v2\//$cesc/" \
     /var/www/html/monster-ui/js/config.js
 
@@ -71,7 +71,7 @@ fi
 
 if [ "$ENABLE_PROVISIONER" == true ]; then
     echo "Enabling provisioner ..."
-    pesc=$(echo "$PROVISIONER_URL" | sed 's/\//\\\//g')
+    pesc=$(echo "$PROVISIONER_URL/" | sed 's/\//\\\//g')
 
     sed -ir '/provisioner:/s/\/\/ //' \
         /var/www/html/monster-ui/js/config.js
