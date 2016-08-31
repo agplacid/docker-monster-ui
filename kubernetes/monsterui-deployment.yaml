@@ -12,7 +12,6 @@ spec:
         project: valuphone
         environment: production
     spec:
-      minReadySeconds: 60
       containers:
         - name: monsterui
           image: callforamerica/monsterui
@@ -46,13 +45,13 @@ spec:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 45
+            initialDelaySeconds: 5
             timeoutSeconds: 15
           livenessProbe:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 45
+            initialDelaySeconds: 30
             timeoutSeconds: 15
           imagePullPolicy: Always
       restartPolicy: Always
