@@ -19,7 +19,7 @@ spec:
             - name: NGINX_LOG_LEVEL
               value: info
             - name: CROSSBAR_URI
-              value: https://api.valuphone.com:8443
+              value: https://api.valuphone.com
             - name: ENABLE_SMARTPBX_CALLFLOWS
               value: 'true'
             - name: DISABLE_BRAINTREE
@@ -29,7 +29,7 @@ spec:
             - name: APPLICATION_TITLE
               value: Valuphone
             - name: CALL_REPORT_EMAIL
-              value: support@valuphone.com  
+              value: support@valuphone.com 
           ports:
             - name: http
               protocol: TCP
