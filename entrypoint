@@ -12,10 +12,14 @@ set -e
 
 : ${CROSSBAR_URI:=https://api.valuphone.com:8443}
 : ${PROVISIONER_URL:=http://p.valuphone.com}
+: ${WEBSOCKETS_URI:=ws://ws.valuphone.com:5555}
 
 : ${ENABLE_SMARTPBX_CALLFLOWS:=true}
 : ${ENABLE_PROVISIONER:=false}
+: ${ENABLE_WEBSOCKETS:=false}
 : ${DISABLE_BRAINTREE:=false}
+
+: ${LOGOUT_TIMER:=0}
 
 : ${COMPANY_NAME:=Valuphone}
 : ${APPLICATION_TITLE:=Valuphone}
@@ -28,10 +32,10 @@ echo "Rewriting debug_log to: $NGINX_LOG_LEVEL ..."
 sed -ir "/error_log/s/warn/$NGINX_LOG_LEVEL/" /etc/nginx/nginx.conf
 
 
-if [ "$NGINX_ACCESS_LOG" == "off" ]; then
+if [[ $NGINX_ACCESS_LOG = 'off' ]]
+then
     echo "Setting access_log to: $NGINX_ACCESS_LOG ..."
-    sed -ir '/access_log/s/\/dev\/stdout     main/                off/' \
-        /etc/nginx/nginx.conf
+    sed -ir '/access_log/s/\/dev\/stdout     main/                off/' /etc/nginx/nginx.conf
 fi
 
 cat /etc/nginx/nginx.conf
@@ -40,44 +44,45 @@ cat /etc/nginx/nginx.conf
 echo "Configuring monster-ui ..."
 
 echo "Rewriting crossbar api url ..."
-cesc=$(echo "$CROSSBAR_URI/v2/" | sed 's/\//\\\//g')
-sed -ir "/default:/s/http.*v2\//$cesc/" \
-    /var/www/html/monster-ui/js/config.js
+(esc=$(echo "$CROSSBAR_URI/v2/" | sed 's/\//\\\//g')
+ sed -ir "/default:/s/http.*v2\//$esc/;/default:/s/$/,/" /var/www/html/monster-ui/js/config.js)
 
 echo "Rewriting application title ..."
-sed -ir "/applicationTitle/s/'.*'/'$APPLICATION_TITLE'/" \
-    /var/www/html/monster-ui/js/config.js
+sed -ir "/applicationTitle/s/'.*'/'$APPLICATION_TITLE'/" /var/www/html/monster-ui/js/config.js
 
 echo "Rewriting call report email ..."
-sed -ir "/callReportEmail/s/'.*'/'$CALL_REPORT_EMAIL'/" \
-    /var/www/html/monster-ui/js/config.js
+sed -ir "/callReportEmail/s/'.*'/'$CALL_REPORT_EMAIL'/" /var/www/html/monster-ui/js/config.js
 
 echo "Rewriting company name ..."
-sed -ir "/companyName/s/'.*'/'$COMPANY_NAME'/" \
-    /var/www/html/monster-ui/js/config.js
+sed -ir "/companyName/s/'.*'/'$COMPANY_NAME'/" /var/www/html/monster-ui/js/config.js
 
+echo "Setting logout timer ..."
+sed "/logoutTimer:/s/\/\/\s*//;/logoutTimer:/s/0/$LOGOUT_TIMER/" /var/www/html/monster-ui/js/config.js
 
-if [ "$ENABLE_SMARTPBX_CALLFLOWS" == true ]; then
+if [[ $ENABLE_WEBSOCKETS = true ]]
+then
+    echo "Setting websockets uri ..."
+    (esc=$(echo "$WEBSOCKETS_URI" | sed 's/\//\\\//g')
+     sed -ir "/socket:/s/\/\/ //;/socket:/s/your_web_socket_url/$esc/" /var/www/html/monster-ui/js/config.js)
+fi
+
+if [[ $ENABLE_SMARTPBX_CALLFLOWS = true ]]
+then
     echo "Enabling SmartPBX callflows ..."
-    sed -ir '/showSmartPBXCallflows/s/\/\/ //' \
-        /var/www/html/monster-ui/js/config.js
+    sed -ir '/showSmartPBXCallflows/s/\/\/ //' /var/www/html/monster-ui/js/config.js
 fi
 
-if [ "$DISABLE_BRAINTREE" == true ]; then
+if [[ $DISABLE_BRAINTREE = true ]]
+then
     echo "Disabling braintree ..."
-    sed -ir '/disableBraintree/s/\/\/ //' \
-        /var/www/html/monster-ui/js/config.js
+    sed -ir '/disableBraintree/s/\/\/ //' /var/www/html/monster-ui/js/config.js
 fi
 
-if [ "$ENABLE_PROVISIONER" == true ]; then
+if [[ $ENABLE_PROVISIONER = true ]]
+then
     echo "Enabling provisioner ..."
-    pesc=$(echo "$PROVISIONER_URL/" | sed 's/\//\\\//g')
-
-    sed -ir '/provisioner:/s/\/\/ //' \
-        /var/www/html/monster-ui/js/config.js
-
-    sed -ir "/provisioner:/s/'.*'/'$pesc',/" \
-        /var/www/html/monster-ui/js/config.js
+    (esc=$(echo "$PROVISIONER_URL/" | sed 's/\//\\\//g')
+     sed -ir "/provisioner:/s/\/\/ //;/provisioner:/s/'.*'/'$esc',/" /var/www/html/monster-ui/js/config.js)
 fi
 
 cat /var/www/html/monster-ui/js/config.js

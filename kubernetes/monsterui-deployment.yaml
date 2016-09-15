@@ -20,6 +20,10 @@ spec:
               value: info
             - name: CROSSBAR_URI
               value: https://api.valuphone.com
+            - name: WEBSOCKETS_URI
+              value: ws://ws.valuphone.com:5555 
+            - name: ENABLE_WEBSOCKETS
+              value: 'false'                           
             - name: ENABLE_SMARTPBX_CALLFLOWS
               value: 'true'
             - name: DISABLE_BRAINTREE
