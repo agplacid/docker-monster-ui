@@ -12,7 +12,7 @@ set -e
 
 : ${CROSSBAR_URI:=https://api.valuphone.com:8443}
 : ${PROVISIONER_URL:=http://p.valuphone.com}
-: ${WEBSOCKETS_URI:=ws://ws.valuphone.com:5555}
+: ${WEBSOCKETS_URI:=ws://ws.valuphone.com}
 
 : ${ENABLE_SMARTPBX_CALLFLOWS:=true}
 : ${ENABLE_PROVISIONER:=false}
