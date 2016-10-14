@@ -22,14 +22,17 @@ checkout:
 	@git checkout $(BUILD_BRANCH)
 
 build:
-	@docker build -t $(LOCAL_TAG) --rm .
-	$(MAKE) tag
+	@docker build -t $(LOCAL_TAG) --force-rm .
+	@$(MAKE) tag
+	@$(MAKE) dclean
 
 tag:
 	@docker tag $(LOCAL_TAG) $(REMOTE_TAG)
 
 rebuild:
-	@docker build -t $(LOCAL_TAG) --rm --no-cache .
+	@docker build -t $(LOCAL_TAG) --force-rm --no-cache .
+	@$(MAKE) tag
+	@$(MAKE) dclean
 
 test:
 	@rspec ./tests/*.rb
@@ -78,6 +81,9 @@ rmi:
 	@docker rmi $(LOCAL_TAG)
 	@docker rmi $(REMOTE_TAG)
 
+rmf:
+	@docker rm -f $(NAME)
+
 nginx-reload:
 	kubectl exec $(shell kubectl get po | grep $(NAME) | cut -d' ' -f1) -- nginx -s reload
 
@@ -117,5 +123,10 @@ kube-logsft:
 
 kube-shell:
 	@kubectl exec -ti $(shell kubectl get po | grep $(NAME) | cut -d' ' -f1) -- bash
+
+dclean:
+	@-docker ps -aq | gxargs -I{} docker rm {} 2> /dev/null || true
+	@-docker images -f dangling=true -q | xargs docker rmi
+	@-docker volume ls -f dangling=true -q | xargs docker volume rm
 
 default: build

@@ -1,30 +1,47 @@
-FROM    nginx
+FROM    callforamerica/debian
 
 MAINTAINER joe <joe@valuphone.com>
 
-LABEL   os="linux" \
-        os.distro="debian" \
-        os.version="jessie"
+ARG     MONSTER_UI_VERSION
+ARG     MONSTER_UI_BRANCH
+ARG     MONSTER_APPS_VERSION
+ARG     MONSTER_APPS_BRANCH
+ARG     MONSTER_APPS
+ARG     MONSTER_APP_APIEXPLORER_BRANCH
+ARG     NGINX_VERSION
+ARG     NODE_VERSION=6
+ARG     JQ_VERSION
 
-LABEL   image.name="monsterui" \
-        image.version="3.22"
+ENV     NGINX_VERSION=${NGINX_VERSION:-1.10.0} \
+        MONSTER_UI_VERSION=${MONSTER_UI_VERSION:-4.0} \
+        MONSTER_UI_BRANCH=${MONSTER_UI_BRANCH:-master} \
+        MONSTER_APPS_VERSION=${MONSTER_APPS_VERSION:-4.0} \
+        MONSTER_APPS_BRANCH=${MONSTER_APPS_BRANCH:-master} \
+        MONSTER_APPS=${MONSTER_APPS:-callflows,voip,pbxs,accounts,webhooks,numbers} \
+        MONSTER_APP_APIEXPLORER_BRANCH=${MONSTER_APP_APIEXPLORER_BRANCH:-master} \
+        NODE_VERSION=${NODE_VERSION:-6} \
+        JQ_VERSION=${JQ_VERSION:-1.5}
 
-ENV     MONSTER_UI_VERSION=3.22
+LABEL   app.nginx.version=$NGINX_VERSION
+LABEL   app.monsterui-version=$MONSTER_UI_VERSION \
+        app.monsterui-branch=$MONSTER_UI_BRANCH
+
+LABEL   app.monster-apps.version=$MONSTER_APPS_VERSION \
+        app.monster-apps.branch=${MONSTER_APPS_BRANCH} \
+        app.monster-apps.apps="${MONSTER_APPS},apiexplorer"
 
 ENV     HOME=/opt/monsterui
-ENV     PATH=$HOME:$PATH
 
-COPY    setup.sh /tmp/setup.sh
-RUN     /tmp/setup.sh
+COPY    build.sh /tmp/
+RUN     /tmp/build.sh
 
-COPY    nginx.conf /etc/nginx/nginx.conf
-
-COPY    entrypoint /usr/bin/entrypoint
+COPY    nginx.conf /etc/nginx/
+COPY    entrypoint /
 
 ENV     NGINX_LOG_LEVEL=info
 
-ENV     CROSSBAR_URI=https://api.valuphone.com:8443
-        
+ENV     CROSSBAR_URI=https://api.valuphone.com
+
 ENV     ENABLE_SMARTPBX_CALLFLOWS=true \
         DISABLE_BRAINTREE=false \
         ENABLE_PROVISIONER=false
@@ -41,4 +58,5 @@ VOLUME  ["/var/www/html"]
 
 WORKDIR /opt/monsterui
 
-CMD     ["/usr/bin/entrypoint"]
+ENTRYPOINT  ["/dumb-init", "--"]
+CMD         ["/entrypoint"]

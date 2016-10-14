@@ -1,18 +1,29 @@
-#!/bin/bash
+#!/bin/bash -l
 
 set -e
 
-. ~/.bashrc
+app=monsterui
+user=$app
+
+if [ -f /etc/default/nginx ]
+then
+    . /etc/default/nginx
+fi
+
+if [ -f /etc/default/$app ]
+then
+    . /etc/default/$app
+fi
 
 # options: debug info notice warn error crit alert emerg
 : ${NGINX_LOG_LEVEL:=info}
 
 # options: on off
-: ${NGINX_ACCESS_LOG:=on}
+: ${NGINX_ACCESS_LOG:=main}
 
-: ${CROSSBAR_URI:=https://api.valuphone.com:8443}
-: ${PROVISIONER_URL:=http://p.valuphone.com}
-: ${WEBSOCKETS_URI:=ws://ws.valuphone.com}
+: ${CROSSBAR_URI:=https://api.valuphone.com}
+: ${PROVISIONER_URI:=http://p.valuphone.com}
+: ${WEBSOCKETS_URI:=wss://wss.valuphone.com}
 
 : ${ENABLE_SMARTPBX_CALLFLOWS:=true}
 : ${ENABLE_PROVISIONER:=false}
@@ -26,74 +37,73 @@ set -e
 : ${CALL_REPORT_EMAIL:=support@valuphone.com}
 
 
-echo "Configuring nginx ..."
+function log 
+{
+    local msg="$1"
+    echo -e "\E[36m[*]\E[0m ${msg}" 
+}
 
-echo "Rewriting debug_log to: $NGINX_LOG_LEVEL ..."
-sed -ir "/error_log/s/warn/$NGINX_LOG_LEVEL/" /etc/nginx/nginx.conf
 
-
-if [[ $NGINX_ACCESS_LOG = 'off' ]]
-then
-    echo "Setting access_log to: $NGINX_ACCESS_LOG ..."
-    sed -ir '/access_log/s/\/dev\/stdout     main/                off/' /etc/nginx/nginx.conf
-fi
-
-cat /etc/nginx/nginx.conf
+log "Configuring nginx ..."
+log "Rewriting debug_log to: $NGINX_LOG_LEVEL & access_log to: $NGINX_ACCESS_LOG ..."
+sed -i "\|error_log|s|\(/dev/stdout \)\(.*\)\(\;\)|\1${NGINX_LOG_LEVEL}\3|" /etc/nginx/nginx.conf
+sed -i "\|access_log|s|\(/dev/stdout     \)\(.*\)\(\;\)|\1${NGINX_ACCESS_LOG}\3|" $_
+cat $_
 
 
 echo "Configuring monster-ui ..."
+pushd /var/www/html/monster-ui
+    log "Rewriting crossbar api url ..."
+    sed -i "\|default:|s|http.*v2/|$CROSSBAR_URI/v2/|" js/config.js
 
-echo "Rewriting crossbar api url ..."
-(esc=$(echo "$CROSSBAR_URI/v2/" | sed 's/\//\\\//g')
- sed -ir "/default:/s/http.*v2\//$esc/;/default:/s/$/,/" /var/www/html/monster-ui/js/config.js)
+    log "Rewriting application title ..."
+    sed -i "/applicationTitle/s/'.*'/'$APPLICATION_TITLE'/" js/config.js
 
-echo "Rewriting application title ..."
-sed -ir "/applicationTitle/s/'.*'/'$APPLICATION_TITLE'/" /var/www/html/monster-ui/js/config.js
+    log "Rewriting call report email ..."
+    sed -i "/callReportEmail/s/'.*'/'$CALL_REPORT_EMAIL'/" js/config.js
 
-echo "Rewriting call report email ..."
-sed -ir "/callReportEmail/s/'.*'/'$CALL_REPORT_EMAIL'/" /var/www/html/monster-ui/js/config.js
+    log "Rewriting company name ..."
+    sed -i "/companyName/s/'.*'/'$COMPANY_NAME'/" js/config.js
 
-echo "Rewriting company name ..."
-sed -ir "/companyName/s/'.*'/'$COMPANY_NAME'/" /var/www/html/monster-ui/js/config.js
+    log "Setting logout timer ..."
+    sed -i "\|logoutTimer:|s|//\s*||;/logoutTimer:/s/0/$LOGOUT_TIMER/" js/config.js
 
-echo "Setting logout timer ..."
-sed "/logoutTimer:/s/\/\/\s*//;/logoutTimer:/s/0/$LOGOUT_TIMER/" /var/www/html/monster-ui/js/config.js
+    if [[ $ENABLE_WEBSOCKETS = true ]]
+    then
+        log "Setting websockets uri ..."
+        sed -i "\|socket:|s|// ||;\|socket:|s|'.*'/'$WEBSOCKETS_URI'/" js/config.js
+    fi
 
-if [[ $ENABLE_WEBSOCKETS = true ]]
-then
-    echo "Setting websockets uri ..."
-    (esc=$(echo "$WEBSOCKETS_URI" | sed 's/\//\\\//g')
-     sed -ir "/socket:/s/\/\/ //;/socket:/s/your_web_socket_url/$esc/" /var/www/html/monster-ui/js/config.js)
-fi
+    if [[ $ENABLE_SMARTPBX_CALLFLOWS = true ]]
+    then
+        log "Enabling SmartPBX callflows ..."
+        sed -i '\|showSmartPBXCallflows|s|// ||' js/config.js
+    fi
 
-if [[ $ENABLE_SMARTPBX_CALLFLOWS = true ]]
-then
-    echo "Enabling SmartPBX callflows ..."
-    sed -ir '/showSmartPBXCallflows/s/\/\/ //' /var/www/html/monster-ui/js/config.js
-fi
+    if [[ $DISABLE_BRAINTREE = true ]]
+    then
+        log "Disabling braintree ..."
+        sed -i '\|disableBraintree|s|// ||' js/config.js
+    fi
 
-if [[ $DISABLE_BRAINTREE = true ]]
-then
-    echo "Disabling braintree ..."
-    sed -ir '/disableBraintree/s/\/\/ //' /var/www/html/monster-ui/js/config.js
-fi
+    if [[ $ENABLE_PROVISIONER = true ]]
+    then
+        log "Enabling provisioner ..."
+        sed -i "\|provisioner:|s|// ||;\|provisioner:|s|'.*'|'$PROVISIONER_URI',|" js/config.js
+    fi
 
-if [[ $ENABLE_PROVISIONER = true ]]
-then
-    echo "Enabling provisioner ..."
-    (esc=$(echo "$PROVISIONER_URL/" | sed 's/\//\\\//g')
-     sed -ir "/provisioner:/s/\/\/ //;/provisioner:/s/'.*'/'$esc',/" /var/www/html/monster-ui/js/config.js)
-fi
-
-cat /var/www/html/monster-ui/js/config.js
+    cat js/config.js
+    popd
 
 
-echo "Ensuring permissions ..."
-chown -R nginx:nginx \
-    /etc/nginx/nginx.conf \
+log "Ensuring permissions ..."
+chown -R $user:$user \
+    /etc/nginx \
     /var/www/html
 
 
-echo "Starting nginx ..."
+log "Starting nginx ..."
 cd ~
+    # ok to start as root user here because nginx will drop down to user in config file
+    # -g 'daemon off;' is a runtime directive telling the process not to daemonize itself
     exec nginx -g 'daemon off;' 2>&1
