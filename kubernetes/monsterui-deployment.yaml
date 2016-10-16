@@ -16,6 +16,36 @@ spec:
       - name: monsterui
         image: callforamerica/monsterui
         env:
+        - name: CROSSBAR_EXTERNAL_SCHEME
+          valueFrom:
+            configMap:
+              name: crossbar-config
+              key: crossbar.external.scheme
+        - name: CROSSBAR_EXTERNAL_HOST
+          valueFrom:
+            configMap:
+              name: crossbar-config
+              key: crossbar.external.host
+        - name: CROSSBAR_EXTERNAL_PORT
+          valueFrom:
+            configMap:
+              name: crossbar-config
+              key: crossbar.external.port
+        - name: WEBSOCKETS_SCHEME
+          valueFrom:
+            configMap:
+              name: environment-config
+              key: websockets.scheme
+        - name: WEBSOCKETS_HOST
+          valueFrom:
+            configMap:
+              name: environment-config
+              key: websockets.host
+        - name: WEBSOCKETS_PORT
+          valueFrom:
+            configMap:
+              name: environment-config
+              key: websockets.port
         - name: NGINX_LOG_LEVEL
           value: info
         - name: CROSSBAR_URI
