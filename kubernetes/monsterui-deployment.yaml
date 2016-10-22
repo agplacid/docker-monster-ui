@@ -16,54 +16,96 @@ spec:
       - name: monsterui
         image: callforamerica/monsterui
         env:
-        - name: CROSSBAR_EXTERNAL_SCHEME
-          valueFrom:
-            configMap:
-              name: crossbar-config
-              key: crossbar.external.scheme
-        - name: CROSSBAR_EXTERNAL_HOST
-          valueFrom:
-            configMap:
-              name: crossbar-config
-              key: crossbar.external.host
-        - name: CROSSBAR_EXTERNAL_PORT
-          valueFrom:
-            configMap:
-              name: crossbar-config
-              key: crossbar.external.port
-        - name: WEBSOCKETS_SCHEME
-          valueFrom:
-            configMap:
-              name: environment-config
-              key: websockets.scheme
-        - name: WEBSOCKETS_HOST
-          valueFrom:
-            configMap:
-              name: environment-config
-              key: websockets.host
-        - name: WEBSOCKETS_PORT
-          valueFrom:
-            configMap:
-              name: environment-config
-              key: websockets.port
         - name: NGINX_LOG_LEVEL
-          value: info
+          valueFrom:
+            configMap:
+              name: sup-config
+              key: nginx.log-level
+        - name: NGINX_ACCESS_LOG
+          valueFrom:
+            configMap:
+              name: monsterui-config
+              key: nginx.access-log
         - name: CROSSBAR_URI
-          value: https://api.valuphone.com
-        - name: WEBSOCKETS_URI
-          value: wss://wss.valuphone.com
+          valueFrom:
+            configMap:
+              name: environment-config
+              key: crossbar.external.uri  
         - name: ENABLE_WEBSOCKETS
-          value: 'false'
-        - name: ENABLE_SMARTPBX_CALLFLOWS
-          value: 'true'
+          valueFrom:
+            configMap:
+              name: monsterui-config
+              key: monsterui.enable-websockets                   
+        - name: WEBSOCKETS_URI
+          valueFrom:
+            configMap:
+              name: environment-config
+              key: websockets.external.uri
+        - name: ENABLE_SOCKET_WEBPHONE
+          valueFrom:
+            configMap:
+              name: monsterui-config
+              key: monsterui.enable-socket-webphone                   
+        - name: SOCKET_WEBPHONE_URI
+          valueFrom:
+            configMap:
+              name: environment-config
+              key: monsterui.socket-webphone.uri
+        - name: ENABLE_PROVISIONER
+          valueFrom:
+            configMap:
+              name: monsterui-config
+              key: monsterui.enable-provisioner
+        - name: PROVISIONER_URI
+          valueFrom:
+            configMap:
+              name: environent-config
+              key: provisioner.uri
+        - name: ENABLE_PHONEBOOK
+          valueFrom:
+            configMap:
+              name: monsterui-config
+              key: monsterui.enable-phonebook
+        - name: PHONEBOOK_URI
+          valueFrom:
+            configMap:
+              name: environment-config
+              key: phonebook.uri
         - name: DISABLE_BRAINTREE
-          value: 'false'
-        - name: COMPANY_NAME
-          value: Valuphone
+          valueFrom:
+            configMap:
+              name: monsterui-config
+              key: monsterui.disable-braintree
+        - name: MONSTERUI_LOGOUT_TIMER
+          valueFrom:
+            configMap:
+              name: monsterui-config
+              key: monsterui.logout-timer
         - name: APPLICATION_TITLE
-          value: Valuphone
+          valueFrom:
+            configMap:
+              name: monsterui-config
+              key: monsterui.application-title
+        - name: COMPANY_NAME
+          valueFrom:
+            configMap:
+              name: company-config
+              key: company.name
         - name: CALL_REPORT_EMAIL
-          value: support@valuphone.com 
+          valueFrom:
+            configMap:
+              name: company-config
+              key: company.support.email
+        - name: LOGOUT_URL
+          valueFrom:
+            configMap:
+              name: monsterui-config
+              key: monsterui.logout-url
+        - name: SHOW_JS_ERRORS
+          valueFrom:
+            configMap:
+              name: monsterui-config
+              key: monsterui.show-js-errors
         ports:
         - name: http
           protocol: TCP

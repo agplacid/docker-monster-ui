@@ -61,6 +61,20 @@ launch:
 launch-net:
 	@docker run -d --name $(NAME) -h $(NAME).local $(ENV_ARGS) $(PORT_ARGS) --network=local --net-alias $(NAME).local $(LOCAL_TAG)
 
+launch-dev:
+	@$(MAKE) launch-net
+
+rmf-dev:
+	@$(MAKE) rmf
+
+launch-deps:
+	@cd ../docker-kazoo && make launch-as-dep
+	@cd ../docker-kamailio && make launch-as-dep
+
+rmf-deps:
+	@cd ../docker-kazoo && make rmf-as-dep
+	@cd ../docker-kamailio && make rmf-as-dep
+
 create-network:
 	@docker network create -d bridge local
 

@@ -40,15 +40,9 @@ COPY    entrypoint /
 
 ENV     NGINX_LOG_LEVEL=info
 
-ENV     CROSSBAR_URI=https://api.valuphone.com
-
 ENV     ENABLE_SMARTPBX_CALLFLOWS=true \
         DISABLE_BRAINTREE=false \
         ENABLE_PROVISIONER=false
-
-ENV     COMPANY_NAME=Valuphone \
-        APPLICATION_TITLE=Valuphone \
-        CALL_REPORT_EMAIL=support@valuphone.com
 
 EXPOSE  80
 

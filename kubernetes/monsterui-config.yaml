@@ -9,14 +9,12 @@ metadata:
 data:
   nginx.log-level: info
   nginx.acccess-log: main
-  enable-provisioner: 'false'
-  enable-websockets: 'false'
-  logout-timer: 0
-  
-  # [todo] pull these from the other config
-  crossbar-uri: https://api.valuphone.com
-  provisioner-uri: https://p.valuphone.com
-  websockets-uri: wss://wss.valuphone.com
-  company-name: Valuphone
-  application-title: Valuphone
-  call-report-email: support@valuphone.com
+  monsterui.enable-provisioner: 'false'
+  monsterui.enable-websockets: 'true'
+  monsterui.enable-phonebook: 'false'
+  monsterui.disable-braintree: 'false'
+  monsterui.logout-timer: 0
+  monsterui.logout-url: https://valuphone.com
+  monsterui.application-title: 'My Valuphone'
+  monsterui.show-js-errors: 'false'
+  monsterui.enable-socket-webphone: 'true'

@@ -50,7 +50,7 @@ npm install -g npm gulp
 echo "Installing monster-ui ..."
 mkdir -p /var/www/html
 pushd $_
-    git clone -b $MONSTER_APPS_BRANCH --single-branch --depth 1 https://github.com/2600hz/monster-ui monster-ui
+    git clone -b $MONSTER_UI_BRANCH --single-branch --depth 1 https://github.com/2600hz/monster-ui monster-ui
         pushd $_
             echo "Installing monster-ui apps ..."
             pushd src/apps
@@ -72,7 +72,48 @@ pushd $_
                 find -mindepth 1 -maxdepth 1 -not -name dist -exec rm -rf {} \;
                 mv dist/* .  
                 rm -rf dist
+
+                echo "Downloading pdf's from 2600hz ..."
+                curl -sSL -o Editable.LOA.Form.pdf \
+                    http://ui.zswitch.net/Editable.LOA.Form.pdf
+                curl -sSL -o Editable.Resporg.Form.pdf \
+                    http://ui.zswitch.net/Editable.Resporg.Form.pdf
+                chmod 0777 *.pdf
+
+                echo "Rewriting config to be more easily parsable in entrypoint ..."
                 sed -i '/default:/s/ \/\/.*$//' js/config.js
+                sed -i '\|provisioner:|s|// |// ,|' $_
+                sed -i '\|socket:|s|// |// ,|' $_
+                sed -i "\|socket:|i \                        //   with TLS: wss://blackhole-url \\
+                        //   without TLS: ws://blackhole-url" $_
+                sed -i "\|socket:|a \\
+                        \\
+                        // If you want to use the webphone, you will need to enable websockets in kamailio \\
+                        // and plug the websocket uri in below: \\
+                        //   with TLS: wss://kamailio-url:5065 \\
+                        //   without TLS: ws://kamailio-url:5064 \\
+                        // ,socketWebphone: 'wss://kamailio-url:5065'" $_
+                sed -i '\|phonebook:|s|// |// ,|' $_
+                sed -i '/resellerId:/s/,$//' $_
+                sed -i '\|disableBraintree:|s|//[[:space:]]*||;/disableBraintree:/s/,$//' $_
+                sed -i '/whitelabel:/s/^\([[:space:]]*\)\b/\1,/' $_
+                sed -i '\|logoutTimer:|s|//[[:space:]]*||;/logoutTimer:/s/,$//' $_
+                sed -i '\|language:|s|//[[:space:]]*|// ,|;/language:/s/,$//' $_
+                sed -i '\|applicationTitle:|s|^\([[:space:]]*\)\b|\1,|;/applicationTitle:/s/,$//' $_
+                sed -i '\|callReportEmail:|s|^\([[:space:]]*\)\b|\1,|;/callReportEmail:/s/,$//' $_
+                sed -i '\|companyName:|s|^\([[:space:]]*\)\b|\1,|;/companyName:/s/,$//' $_
+                sed -i '/nav:/s/^\([[:space:]]*\)\b/\1,/' $_
+                sed -i '/help:/s/,$//' $_
+                sed -i '\|logout:|s|^\([[:space:]]*\)// \b|\1,|;/logout:/s/,$//' $_
+                sed -i '/loa:/s/,$//' $_
+                sed -i '/preventDIDFormatting:/s/,$//' $_
+                sed -i '/jiraFeedback/s/^\([[:space:]]*\)\b/\1,/' $_
+                sed -i '\|resporg:|s|^\([[:space:]]*\)\b|\1,|;/resporg:/s/,$//' $_
+                sed -i '/to enabled/s/\(enabled\):/\1/' $_
+                sed -i '/enabled:/s/,$//' $_
+                sed -i '\|url:|s|^\([[:space:]]*\)\b|\1,|;/url:/s/,$//' $_
+                sed -i '\|showSmartPBXCallflows:|s|^\([[:space:]]*\)// \b|\1|;/showSmartPBXCallflows:/s/,$//' $_
+                sed -i '\|showJSErrors:|s|^\([[:space:]]*\)// \b|\1,|;/showJSErrors:/s/,$//' $_
 
 
 echo "Removing npm & gulp ..."
@@ -86,6 +127,8 @@ apt-get purge -y --auto-remove \
     curl \
     git \
     nodejs
+
+rm -f /etc/apt/sources.list.d/nodesource.list
 
 
 echo "Setting ownerships & permissions ..."

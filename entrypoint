@@ -21,20 +21,78 @@ fi
 # options: on off
 : ${NGINX_ACCESS_LOG:=main}
 
-: ${CROSSBAR_URI:=https://api.valuphone.com}
-: ${PROVISIONER_URI:=http://p.valuphone.com}
-: ${WEBSOCKETS_URI:=wss://wss.valuphone.com}
+# : ${CROSSBAR_EXTERNAL_SCHEME:=http}
+# : ${CROSSBAR_EXTERNAL_HOST:=localhost}
+# : ${CROSSBAR_EXTERNAL_PORT:=8000}
 
-: ${ENABLE_SMARTPBX_CALLFLOWS:=true}
+# if [[ -z $CROSSBAR_URI ]]
+# then
+#     CROSSBAR_URI=$CROSSBAR_EXTERNAL_SCHEME://$CROSSBAR_EXTERNAL_HOST
+#     if [[ ! -z $CROSSBAR_EXTERNAL_PORT && ! $CROSSBAR_EXTERNAL_PORT = 443 ]]
+#     then
+#         CROSSBAR_URI="$CROSSBAR_URI:$CROSSBAR_EXTERNAL_PORT"
+#     fi
+# fi
+
+# : ${WEBSOCKETS_SCHEME:=wss}
+# : ${WEBSOCKETS_HOST:=localhost}
+# : ${WEBSOCKETS_PORT:=5064}
+
+# if [[ -z $WEBSOCKETS_URI ]]
+# then
+#     WEBSOCKETS_URI=$WEBSOCKETS_SCHEME://$WEBSOCKETS_HOST
+#     if [[ ! -z $WEBSOCKETS_PORT && ! $WEBSOCKETS_PORT = 443 ]]
+#     then
+#         WEBSOCKETS_URI="$WEBSOCKETS_URI:$WEBSOCKETS_PORT"
+#     fi
+# fi
+
+# : ${PROVISIONER_SCHEME:=http}
+# : ${PROVISIONER_HOST:=localhost}
+# : ${PROVISIONER_PORT:=}
+
+# if [[ -z $PROVISIONER_URI ]]
+# then
+#     PROVISIONER_URI=$PROVISIONER_SCHEME://$PROVISIONER_HOST
+#     if [[ ! -z $PROVISIONER_PORT && ! $PROVISIONER_PORT = 443 ]]
+#     then
+#         PROVISIONER_URI="$PROVISIONER_URI:$PROVISIONER_PORT"
+#     fi
+# fi
+
+: ${CROSSBAR_URI:=http://localhost:8000}
+
 : ${ENABLE_PROVISIONER:=false}
-: ${ENABLE_WEBSOCKETS:=false}
-: ${DISABLE_BRAINTREE:=false}
+: ${PROVISIONER_URI:=http://localhost:6666}
 
+: ${ENABLE_WEBSOCKETS:=false}
+: ${WEBSOCKETS_URI:=ws://localhost:5555}
+
+: ${ENABLE_SOCKET_WEBPHONE:=false}
+: ${SOCKET_WEBPHONE_URI:=ws://localhost:5064}
+
+: ${ENABLE_PHONEBOOK:=false}
+: ${PHONEBOOK_URI:=http://localhost}
+
+: ${DISABLE_BRAINTREE:=false}
 : ${LOGOUT_TIMER:=0}
 
-: ${COMPANY_NAME:=Valuphone}
-: ${APPLICATION_TITLE:=Valuphone}
-: ${CALL_REPORT_EMAIL:=support@valuphone.com}
+: ${APPLICATION_TITLE:=MonsterUI}
+: ${CALL_REPORT_EMAIL:=support@localhost}
+
+: ${COMPANY_NAME:=Company}
+: ${COMPANY_DOMAIN:=docker.local}
+
+: ${NAV_HELP_URL:=//helpcenter.$COMPANY_DOMAIN}
+: ${NAV_LOGOUT_URL:=//$COMPANY_DOMAIN}
+
+: ${PORT_LOA_URL:=/Editable.LOA.Form.pdf}
+: ${PORT_RESPORG_URL:=/Editable.Resporg.Form.pdf}
+
+: ${PREVENT_DID_FORMATTING:=false}
+
+: ${SHOW_SMARTPBX_CALLFLOWS:=true}
+: ${SHOW_JS_ERRORS:=false}
 
 
 function log 
@@ -56,41 +114,47 @@ pushd /var/www/html/monster-ui
     log "Rewriting crossbar api url ..."
     sed -i "\|default:|s|http.*v2/|$CROSSBAR_URI/v2/|" js/config.js
 
-    log "Rewriting application title ..."
-    sed -i "/applicationTitle/s/'.*'/'$APPLICATION_TITLE'/" js/config.js
-
-    log "Rewriting call report email ..."
-    sed -i "/callReportEmail/s/'.*'/'$CALL_REPORT_EMAIL'/" js/config.js
-
-    log "Rewriting company name ..."
-    sed -i "/companyName/s/'.*'/'$COMPANY_NAME'/" js/config.js
-
-    log "Setting logout timer ..."
-    sed -i "\|logoutTimer:|s|//\s*||;/logoutTimer:/s/0/$LOGOUT_TIMER/" js/config.js
-
-    if [[ $ENABLE_WEBSOCKETS = true ]]
-    then
-        log "Setting websockets uri ..."
-        sed -i "\|socket:|s|// ||;\|socket:|s|'.*'/'$WEBSOCKETS_URI'/" js/config.js
-    fi
-
-    if [[ $ENABLE_SMARTPBX_CALLFLOWS = true ]]
-    then
-        log "Enabling SmartPBX callflows ..."
-        sed -i '\|showSmartPBXCallflows|s|// ||' js/config.js
-    fi
-
-    if [[ $DISABLE_BRAINTREE = true ]]
-    then
-        log "Disabling braintree ..."
-        sed -i '\|disableBraintree|s|// ||' js/config.js
-    fi
-
     if [[ $ENABLE_PROVISIONER = true ]]
     then
         log "Enabling provisioner ..."
         sed -i "\|provisioner:|s|// ||;\|provisioner:|s|'.*'|'$PROVISIONER_URI',|" js/config.js
     fi
+
+    if [[ $ENABLE_WEBSOCKETS = true ]]
+    then
+        log "Setting websockets uri ..."
+        sed -i "\|socket:|s|// ||;\|socket:|s|'.*'|'$WEBSOCKETS_URI'|" js/config.js
+    fi
+
+    if [[ $ENABLE_SOCKET_WEBPHONE = true ]]
+    then
+        log "Setting socket webphone uri ..."
+        sed -i "\|socketWebphone:|s|// ||;\|socketWebphone:|s|'.*'|'$SOCKET_WEBPHONE_URI'|" js/config.js
+    fi
+
+    if [[ $ENABLE_PHONEBOOK = true ]]
+    then
+        log "Setting phonebook uri ..."
+        sed -i "\|phonebook:|s|// ||;\|phonebook:|s|'.*'|'$PHONEBOOK_URI'|" js/config.js
+    fi
+
+    sed -i "/disableBraintree/s/: .*$/: $DISABLE_BRAINTREE/" js/config.js
+    sed -i "/logoutTimer/s/: .*$/: $LOGOUT_TIMER/" $_
+
+    sed -i "/applicationTitle/s/'.*'/'$APPLICATION_TITLE'/" $_
+    sed -i "/callReportEmail/s/'.*'/'$CALL_REPORT_EMAIL'/" $_
+    sed -i "/companyName/s/'.*'/'$COMPANY_NAME'/" $_
+
+    sed -i "\|help:|s|'.*'|'$NAV_HELP_URL'|" $_
+    sed -i "\|logout:|s|'.*'|'$NAV_LOGOUT_URL'|" $_
+
+    sed -i "\|loa:|s|'.*'|'$PORT_LOA_URL'|" $_
+    sed -i "\|resporg:|s|'.*'|'$PORT_RESPORG_URL'|" $_
+
+    sed -i "/preventDIDFormatting/s/: .*$/: $PREVENT_DID_FORMATTING/" $_
+
+    sed -i "/showSmartPBXCallflows/s/: .*$/: $SHOW_SMARTPBX_CALLFLOWS/" $_
+    sed -i "/showJSError/s/: .*$/: $SHOW_JS_ERRORS/" $_
 
     cat js/config.js
     popd
