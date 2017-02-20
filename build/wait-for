@@ -1,0 +1,22 @@
+#!/bin/bash
+
+function service-up {
+    local host=$(echo $1 | cut -d':' -f1)
+    local port=$(echo $1 | cut -d':' -f1)
+    nc -z $host $port
+}
+
+function wait {
+    printf '.'
+    sleep 5
+}
+
+SERVICES="$@"
+
+echo "Waiting for $SERVICES to start"
+for service in "$SERVICES"; do
+    until service-up "$service"; do
+        wait
+    fi
+    echo
+done

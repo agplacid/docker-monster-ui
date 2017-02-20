@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monsterui
+  labels:
+    app: monsterui
+    project: valuphone
+    environment: production
+data:
+  nginx.log.level: warn
+  nginx.http-client.max-body-size: 30M
+  # monsterui.crossbar.uri: //api.valuphone.com/v2/
+  monsterui.websocket.uri: //wss.valuphone.com
+  monsterui.webphone.uri: //wss.valuphone.com:5065
+  monsterui.disable-braintree: 'false'

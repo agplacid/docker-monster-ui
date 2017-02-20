@@ -1,0 +1,198 @@
+---
+target: /var/www/html/monster-ui/js/config.js
+owner: monsterui
+mode: '0644'
+---
+
+{%- set ROOT_DOMAIN = env.get('MONSTERUI_ROOT_DOMAIN', 'valuphone.com') -%}
+{%- set COMPANY_NAME = env.get('MONSTERUI_COMPANY_NAME', 'Valuphone') -%}
+
+define(function(require){
+	return {
+		api: {
+			{# The default API URL defines what API is used to log in to your
+			   back-end.
+
+			   Examples:
+			     'https://api.2600hz.com:8443/v2/'
+				 'http://api.2600hz.com:8000/v2/'
+			#}
+			default: '{{ env.get('MONSTERUI_CROSSBAR_URI', '//api.{}/v2/'.format(ROOT_DOMAIN)) }}',
+
+			{# If you have a provisioner turned on in your install and can use
+			   the one provided by 2600Hz, add the URL in the 'provisioner' key
+			   below.
+
+			   Example:
+			     'https://provisioner.2600hz.com/'
+			#}
+			{%- if env.get('MONSTERUI_PROVISIONER_URI') %}
+			provisioner: '{{ env['MONSTERUI_PROVISIONER_URI'] }}',
+			{% endif -%}
+
+			{# If you want to use WebSockets you need to turn Blackhole on in
+			   the back-end and then put the URL in the 'socket' key below.
+
+			   Examples:
+			     'ws://ws.2600hz.com:5555'
+			     'wss://wss.2600hz.com:5443'
+			#}
+			{%- if env.get('MONSTERUI_WEBSOCKET_URI') %}
+			socket: '{{ env['MONSTERUI_WEBSOCKET_URI'] }}',
+			{% endif -%}
+
+			{# If you want to use the webphone, you will need to enable
+			   websockets in kamailio and plug the websocket uri in below:
+
+			   Examples:
+			     'ws://kamailio-url:5064'
+			     'wss://kamailio-url:5065'
+			#}
+			{%- if env.get('MONSTERUI_WEBPHONE_URI') %}
+			socketWebphone: '{{ env['MONSTERUI_WEBPHONE_URI'] }}',
+			{% endif -%}
+
+			{# Set Project Phonebook URL if you want to use it to search phone
+			   numbers
+			#}
+			phonebook: '{{ env.get('MONSTERUI_PHONEBOOK_URI', '') }}'
+		},
+
+		{# The kazooClusterId is the cluster id generated when creating a
+		   cluster doc for provisioner.
+		#}
+		{%- if env.get('MONSTERUI_KAZOO_CLUSTER_ID') %}
+		kazooClusterId: '{{ env['MONSTERUI_KAZOO_CLUSTER_ID'] }}',
+		{% endif -%}
+
+		{# The resellerId key is the accountId of your master account, and is
+		   needed for some reseller features.
+
+		   For example it won't prompt for a credit card the sub-accounts that
+		   have a different resellerId than this resellerId.
+		#}
+		{%- if env.get('MONSTERUI_RESELLER_ID') %}
+		resellerId: '{{ env['MONSTERUI_RESELLER_ID'] }}',
+		{% endif -%}
+
+		{# If you are not using Braintree in your environment, you should add
+		   the following flag to disable the UI components that are using it.
+		#}
+		disableBraintree: {{ env.get('MONSTERUI_DISABLE_BRAINTREE', 'true') }},
+
+		{# Contains all the flags that are whitelabel-able via the Branding app.
+
+		   Setting them in the config file will set the defaults if you don't
+		   use any whitelabel.
+
+		   If the domain used is defined in the whitelabel database, we'll
+		   override the following settings by what is set in the whitelabel
+		   document.
+		#}
+		whitelabel: {
+			{# Logout Timer (minutes before showing the logged in user that it
+			   will auto-disconnect him soon)
+
+			   Changing this value allows you to disable the auto-logout
+			   mechanism by setting it to 0.
+
+			   If you want to change the default duration (15), you can set this
+			   value with a number > 0.
+			#}
+			logoutTimer: {{ env.get('MONSTERUI_LOGOUT_TIMER', 0) }},
+
+			{# Additional apps to load once the user is logged in (will be
+			   loaded along the appstore, apploader, common controls etc..)
+			#}
+			{%- if env.get('MONSTERUI_ADDITIONAL_LOGGED_IN_APPS') %}
+			additionalLoggedInApps: {{ env['MONSTERUI_ADDITIONAL_LOGGED_IN_APPS'].split(',') }},
+			{% endif -%}
+
+			{# Additional CSS files to load. Need to be in src/css folder. #}
+			{%- if env.get('MONSTERUI_ADDITIONAL_CSS_FILES') %}
+			additionalCss: {{ env['MONSTERUI_ADDITIONAL_CSS_FILES'].split(',') }},
+			{% endif -%}
+
+			{# By default the language is set by the browser, and once the user is
+			   logged in it will take what's set in the account/user.
+
+			   If you want to force the language of the UI before the user is
+			   logged in, you can set it here.
+			#}
+			{%- if env.get('MONSTERUI_LANGUAGE') %}
+			language: '{{ env['MONSTERUI_LANGUAGE'] }}',
+			{% endif -%}
+
+			{# Application title, displayed in the browser tab #}
+			applicationTitle: '{{ env.get('MONSTERUI_APPLICATION_TITLE', '{}, Inc'.format(COMPANY_NAME)) }}',
+
+			{# E-mail address used to report calls in SmartPBX's Call Logs.
+			   "Report Call" link won't be displayed if no address is specified.
+
+			   This address can either be set here in the config file, or
+			   through the Branding app.
+			#}
+			callReportEmail: '{{ env.get('MONSTERUI_CALL_REPORT_EMAIL', 'support@{}'.format(ROOT_DOMAIN)) }}',
+
+			{# Company Name, used in many places in the UI #}
+			companyName: '{{ env.get('MONSTERUI_COMPANY_NAME', COMPANY_NAME) }}',
+
+			nav: {
+				{# Link used when user click on the top-right interrogation
+				   mark.
+				#}
+				help: '{{ env.get('MONSTERUI_SUPPORT_URL', '//support.{}'.format(ROOT_DOMAIN)) }}',
+
+				{# Link used when clicking on logging out. By default the UI
+				   logs out the user after confirmation, but some people wanted
+				   to override that behavior
+				#}
+				logout: '{{ env.get('MONSTERUI_LOGOUT_URL', '/') }}'
+			},
+
+			{# In the Port Manager, we use a LOA Form link. By changing this
+			   attribute, you'll change the default link.
+
+			   If any user has a whitelabel profile set via the Branding app, he
+			   can override that value.
+			#}
+			port: {
+				loa: '{{ env.get('MONSTERUI_LOA_URI', '/Editable.LOA.Form.pdf') }}',
+				resporg: '{{ env.get('MONSTERUI_RESPORG_URI', '/Editable.Resporg.Form.pdf') }}'
+			},
+
+			{# If set to true, the UI will stop trying to pretty print DIDs.
+			   Typically you want to leave this on if you handle US numbers, but
+			   if you handle different countries, it won't display numbers
+			   properly...
+
+			   While we're working on a better fix, this is a quick way to
+			   disable the pretty printing from the time being.
+			#}
+			preventDIDFormatting: {{ env.get('MONSTERUI_PREVENT_DID_FORMATTING', 'false') }},
+
+			{# If you want to provide a "Provide Feedback" button tied with JIRA
+			   issue collector, you can set this object to enabled: true, and
+			   provide the URL of the JIRA Issue collector to the url property.
+
+			   If this item is removed or set to enabled: false, nothing will
+			   appear in the UI.
+			#}
+			jiraFeedback: {
+				enabled: {{ 'true' if env.get('MONSTERUI_JIRA_FEEDBACK_URL') else 'false' }},
+				url: '{{ env.get('MONSTERUI_JIRA_FEEDBACK_URL') }}'
+			}
+		},
+		developerFlags: {
+			{# Setting this flag to true will show all restricted callflows in
+			   the Callflows app.
+			#}
+			showAllCallflows: {{ env.get('MONSTERUI_SHOW_ALL_CALLFLOWS', 'true') }},
+
+			{# Setting this flag to true will show JS error when they happen,
+			   but in general we want to hide those.
+			#}
+			showJSErrors: {{ env.get('MONSTERUI_SHOW_JS_ERRORS', 'false') }}
+		}
+	};
+});

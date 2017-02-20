@@ -1,0 +1,100 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: monsterui
+  labels:
+    app: monsterui
+    project: valuphone
+    environment: production
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: monsterui
+        project: valuphone
+        environment: production
+      annotations:
+        pod.beta.kubernetes.io/init-containers: |-
+          [
+              {
+                  "name": "kubewait",
+                  "image": "callforamerica/kubewait",
+                  "imagePullPolicy": "IfNotPresent",
+                  "args": ["kazoo"],
+                  "env": [
+                      {
+                          "name": "NAMESPACE",
+                          "valueFrom": {
+                              "fieldRef": {
+                                  "apiVersion": "v1",
+                                  "fieldPath": "metadata.namespace"
+                              }
+                          }
+                      }
+                  ]
+              }
+          ]
+    spec:
+      containers:
+      - name: monsterui
+        image: callforamerica/monsterui
+        imagePullPolicy: Always
+        env:
+        - name: NGINX_LOG_LEVEL
+          valueFrom:
+            configMap:
+              name: monsterui
+              key: nginx.log.level
+        - name: NGINX_HTTP_CLIENT_MAX_BODY_SIZE
+          valueFrom:
+            configMap:
+              name: monsterui
+              key: nginx.http-client.max-body-size
+        - name: MONSTERUI_CROSSBAR_URI
+          valueFrom:
+            configMapKeyRef:
+              name: monsterui
+              key: monsterui.crossbar.uri
+        - name: MONSTERUI_WEBSOCKET_URI
+          valueFrom:
+            configMapKeyRef:
+              name: monsterui
+              key: monsterui.websocket.uri
+        - name: MONSTERUI_WEBPHONE_URI
+          valueFrom:
+            configMapKeyRef:
+              name: monsterui
+              key: monsterui.webphone.uri
+        - name: MONSTERUI_DISABLE_BRAINTREE
+          valueFrom:
+            configMapKeyRef:
+              name: monsterui
+              key: monsterui.disable-braintree
+        ports:
+        - name: http
+          containerPort: 80
+        resources:
+          requests:
+            cpu: 1
+            memory: 1Gi
+          limits:
+            cpu: 1
+            memory: 1Gi
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 5
+      restartPolicy: Always

@@ -1,0 +1,39 @@
+---
+target: /etc/nginx/conf.d/01_monsterui.conf
+owner: monsterui
+mode: '0644'
+---
+
+server {
+    server_name             monsterui;
+{% if env.get('NGINX_PROXY_PROTOCOL') == 'false' %}
+    listen                  80 default_server;
+    listen                  [::]:80 default_server;
+{% else %}
+    listen                  80 proxy_protocol default_server;
+    listen                  [::]:80 proxy_protocol default_server;
+    set_real_ip_from        {{ env.get('NGINX_LOAD_BALANCER_CIDR', '0.0.0.0/0') }};
+    real_ip_header          proxy_protocol;
+    real_ip_recursive       on;
+{% endif %}
+
+    root                    /var/www/html/monster-ui;
+    index                   index.html;
+
+    error_page              500 502 503 504  /50x.html;
+
+    {% if env.get('NGINX_CACHING') == 'true' %}
+    location ~* .(ico|js|json|css|html|png|gif|jpe?g|svg|otf|eot|ttf|woff|woff2|pdf) {
+
+        expires             1y;
+        add_header          Cache-Control "public";
+
+        open_file_cache         max=10000;
+        open_file_cache_valid   1d;
+        open_file_cache_errors  off;
+    }
+    {% endif %}
+    location = /50x.html {
+        root                /usr/share/nginx/html;
+    }
+}

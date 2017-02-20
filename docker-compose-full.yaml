@@ -1,0 +1,55 @@
+version: '2.1'
+services:
+  monsterui:
+    container_name: monsterui
+    hostname: monsterui.local
+    build:
+      context: .
+      args:
+        TMPLD_VERSION: '0.2.3'
+    image: "callforamerica/monsterui:${TAG:-latest}"
+    env_file: default.env
+    ports:
+    - "80:80"
+    networks:
+      local:
+        aliases:
+        - monsterui.local
+    depends_on:
+      kazoo:
+        condition: service_healthy
+  kazoo:
+    container_name: kazoo
+    hostname: kazoo.local
+    image: "callforamerica/kazoo:latest"
+    env_file: default.env
+    ports:
+    - "5555:5555"
+    - "8000:8000"
+    - "19025:19025"
+    - "24517:24517"
+    networks:
+      local:
+        aliases:
+        - kazoo.local
+    depends_on:
+      rabbitmq-alpha:
+        condition: service_healthy
+      rabbitmq-beta:
+        condition: service_healthy
+      couchdb:
+        condition: service_healthy
+  rabbitmq-alpha:
+    extends:
+      file: ../docker-rabbitmq/docker-compose-ha.yaml
+      service: rabbitmq-alpha
+  rabbitmq-beta:
+    extends:
+      file: ../docker-rabbitmq/docker-compose-ha.yaml
+      service: rabbitmq-beta
+  couchdb:
+    extends:
+      file: ../docker-couchdb/docker-compose.yaml
+      service: couchdb
+networks:
+  local:

@@ -2,172 +2,21 @@
 
 set -e
 
-app=monsterui
-user=$app
-
-if [ -f /etc/default/nginx ]
-then
-    . /etc/default/nginx
-fi
-
-if [ -f /etc/default/$app ]
-then
-    . /etc/default/$app
-fi
-
-# options: debug info notice warn error crit alert emerg
-: ${NGINX_LOG_LEVEL:=info}
-
-# options: on off
-: ${NGINX_ACCESS_LOG:=main}
-
-# : ${CROSSBAR_EXTERNAL_SCHEME:=http}
-# : ${CROSSBAR_EXTERNAL_HOST:=localhost}
-# : ${CROSSBAR_EXTERNAL_PORT:=8000}
-
-# if [[ -z $CROSSBAR_URI ]]
-# then
-#     CROSSBAR_URI=$CROSSBAR_EXTERNAL_SCHEME://$CROSSBAR_EXTERNAL_HOST
-#     if [[ ! -z $CROSSBAR_EXTERNAL_PORT && ! $CROSSBAR_EXTERNAL_PORT = 443 ]]
-#     then
-#         CROSSBAR_URI="$CROSSBAR_URI:$CROSSBAR_EXTERNAL_PORT"
-#     fi
-# fi
-
-# : ${WEBSOCKETS_SCHEME:=wss}
-# : ${WEBSOCKETS_HOST:=localhost}
-# : ${WEBSOCKETS_PORT:=5064}
-
-# if [[ -z $WEBSOCKETS_URI ]]
-# then
-#     WEBSOCKETS_URI=$WEBSOCKETS_SCHEME://$WEBSOCKETS_HOST
-#     if [[ ! -z $WEBSOCKETS_PORT && ! $WEBSOCKETS_PORT = 443 ]]
-#     then
-#         WEBSOCKETS_URI="$WEBSOCKETS_URI:$WEBSOCKETS_PORT"
-#     fi
-# fi
-
-# : ${PROVISIONER_SCHEME:=http}
-# : ${PROVISIONER_HOST:=localhost}
-# : ${PROVISIONER_PORT:=}
-
-# if [[ -z $PROVISIONER_URI ]]
-# then
-#     PROVISIONER_URI=$PROVISIONER_SCHEME://$PROVISIONER_HOST
-#     if [[ ! -z $PROVISIONER_PORT && ! $PROVISIONER_PORT = 443 ]]
-#     then
-#         PROVISIONER_URI="$PROVISIONER_URI:$PROVISIONER_PORT"
-#     fi
-# fi
-
-: ${CROSSBAR_URI:=http://localhost:8000}
-
-: ${ENABLE_PROVISIONER:=false}
-: ${PROVISIONER_URI:=http://localhost:6666}
-
-: ${ENABLE_WEBSOCKETS:=false}
-: ${WEBSOCKETS_URI:=ws://localhost:5555}
-
-: ${ENABLE_SOCKET_WEBPHONE:=false}
-: ${SOCKET_WEBPHONE_URI:=ws://localhost:5064}
-
-: ${ENABLE_PHONEBOOK:=false}
-: ${PHONEBOOK_URI:=http://localhost}
-
-: ${DISABLE_BRAINTREE:=false}
-: ${LOGOUT_TIMER:=0}
-
-: ${APPLICATION_TITLE:=MonsterUI}
-: ${CALL_REPORT_EMAIL:=support@localhost}
-
-: ${COMPANY_NAME:=Company}
-: ${COMPANY_DOMAIN:=docker.local}
-
-: ${NAV_HELP_URL:=//helpcenter.$COMPANY_DOMAIN}
-: ${NAV_LOGOUT_URL:=//$COMPANY_DOMAIN}
-
-: ${PORT_LOA_URL:=/Editable.LOA.Form.pdf}
-: ${PORT_RESPORG_URL:=/Editable.Resporg.Form.pdf}
-
-: ${PREVENT_DID_FORMATTING:=false}
-
-: ${SHOW_SMARTPBX_CALLFLOWS:=true}
-: ${SHOW_JS_ERRORS:=false}
-
-
-function log 
-{
-    local msg="$1"
-    echo -e "\E[36m[*]\E[0m ${msg}" 
-}
-
-
-log "Configuring nginx ..."
-log "Rewriting debug_log to: $NGINX_LOG_LEVEL & access_log to: $NGINX_ACCESS_LOG ..."
-sed -i "\|error_log|s|\(/dev/stdout \)\(.*\)\(\;\)|\1${NGINX_LOG_LEVEL}\3|" /etc/nginx/nginx.conf
-sed -i "\|access_log|s|\(/dev/stdout     \)\(.*\)\(\;\)|\1${NGINX_ACCESS_LOG}\3|" $_
-cat $_
-
-
-echo "Configuring monster-ui ..."
-pushd /var/www/html/monster-ui
-    log "Rewriting crossbar api url ..."
-    sed -i "\|default:|s|http.*v2/|$CROSSBAR_URI/v2/|" js/config.js
-
-    if [[ $ENABLE_PROVISIONER = true ]]
-    then
-        log "Enabling provisioner ..."
-        sed -i "\|provisioner:|s|// ||;\|provisioner:|s|'.*'|'$PROVISIONER_URI',|" js/config.js
+[[ -f /etc/entrypoint ]] && . /etc/entrypoint
+# need to source and export any shell vars to the environment now that tmpld is
+# writing the templates from the environment.
+for dir in $APP nginx; do
+    if [[ -f /etc/default/$dir ]]; then
+        source /etc/default/$dir
+        export $(grep -v '^#' /etc/default/$dir | cut -d'=' -f1 | xargs)
     fi
-
-    if [[ $ENABLE_WEBSOCKETS = true ]]
-    then
-        log "Setting websockets uri ..."
-        sed -i "\|socket:|s|// ||;\|socket:|s|'.*'|'$WEBSOCKETS_URI'|" js/config.js
-    fi
-
-    if [[ $ENABLE_SOCKET_WEBPHONE = true ]]
-    then
-        log "Setting socket webphone uri ..."
-        sed -i "\|socketWebphone:|s|// ||;\|socketWebphone:|s|'.*'|'$SOCKET_WEBPHONE_URI'|" js/config.js
-    fi
-
-    if [[ $ENABLE_PHONEBOOK = true ]]
-    then
-        log "Setting phonebook uri ..."
-        sed -i "\|phonebook:|s|// ||;\|phonebook:|s|'.*'|'$PHONEBOOK_URI'|" js/config.js
-    fi
-
-    sed -i "/disableBraintree/s/: .*$/: $DISABLE_BRAINTREE/" js/config.js
-    sed -i "/logoutTimer/s/: .*$/: $LOGOUT_TIMER/" $_
-
-    sed -i "/applicationTitle/s/'.*'/'$APPLICATION_TITLE'/" $_
-    sed -i "/callReportEmail/s/'.*'/'$CALL_REPORT_EMAIL'/" $_
-    sed -i "/companyName/s/'.*'/'$COMPANY_NAME'/" $_
-
-    sed -i "\|help:|s|'.*'|'$NAV_HELP_URL'|" $_
-    sed -i "\|logout:|s|'.*'|'$NAV_LOGOUT_URL'|" $_
-
-    sed -i "\|loa:|s|'.*'|'$PORT_LOA_URL'|" $_
-    sed -i "\|resporg:|s|'.*'|'$PORT_RESPORG_URL'|" $_
-
-    sed -i "/preventDIDFormatting/s/: .*$/: $PREVENT_DID_FORMATTING/" $_
-
-    sed -i "/showSmartPBXCallflows/s/: .*$/: $SHOW_SMARTPBX_CALLFLOWS/" $_
-    sed -i "/showJSError/s/: .*$/: $SHOW_JS_ERRORS/" $_
-
-    cat js/config.js
-    popd
+done
 
 
-log "Ensuring permissions ..."
-chown -R $user:$user \
-    /etc/nginx \
-    /var/www/html
+log::m-info "Writing config templates ..."
+tmpld /templates/*.j2
 
 
-log "Starting nginx ..."
+log::m-info "Starting nginx & $APP ..."
 cd ~
-    # ok to start as root user here because nginx will drop down to user in config file
-    # -g 'daemon off;' is a runtime directive telling the process not to daemonize itself
-    exec nginx -g 'daemon off;' 2>&1
+    exec nginx

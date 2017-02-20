@@ -1,0 +1,20 @@
+version: '2.1'
+services:
+  monsterui:
+    container_name: monsterui
+    hostname: monsterui.local
+    build:
+      context: .
+      args:
+        TMPLD_VERSION: '0.2.3'
+    image: "callforamerica/monsterui:${TAG:-latest}"
+    # command: wait-for kazoo:8000 && exec /entrypoint
+    env_file: default.env
+    ports:
+    - "80:80"
+    networks:
+      local:
+        aliases:
+        - monsterui.local
+networks:
+  local:

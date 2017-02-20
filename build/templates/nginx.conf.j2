@@ -1,0 +1,42 @@
+---
+target: /etc/nginx/nginx.conf
+owner: monsterui
+mode: '0644'
+---
+
+user                {{ env.get('USER', 'monsterui') }};
+worker_processes    1;
+pid                 /var/run/nginx.pid;
+daemon              off;
+
+error_log           /dev/stderr {{ env.get('NGINX_LOG_LEVEL', 'warn') }};
+
+
+events {
+    worker_connections          1024;
+    multi_accept                on;
+}
+
+
+http {
+    client_max_body_size        {{ env.get('NGINX_HTTP_CLIENT_MAX_BODY_SIZE', '30M') }};
+    include                     /etc/nginx/mime.types;
+    default_type                application/octet-stream;
+
+    log_format main  '$proxy_protocol_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent"' 'rt=$request_time';
+
+    access_log  /dev/stdout     main;
+
+    sendfile                    on;
+    tcp_nopush                  on;
+    tcp_nodelay                 on;
+    keepalive_timeout           70;
+
+    client_header_timeout       3m;
+    client_body_timeout         9m;
+    send_timeout                3m;
+
+    include /etc/nginx/conf.d/*.conf;
+}

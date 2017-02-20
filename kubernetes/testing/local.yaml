@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monsterui
+  labels:
+    app: monsterui
+    test: 'true'
+    environment: testing
+data:
+  nginx.log.level: warn
+  nginx.proxy-protocol: 'false'
+  # monsterui.crossbar.uri: //minikube.valuphone.local:8000/v2/
+  monsterui.websocket.uri: ws://minikube.valuphone.local:5555
+  monsterui.webphone.uri: ws://minikube.valuphone.local:5064
+  monsterui.disable-braintree: 'false'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monsterui
+  labels:
+    app: monsterui
+    test: 'true'
+    environment: testing
+spec:
+  selector:
+    app: monsterui
+  ports:
+  - name: http
+    port: 80
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: monsterui
+  labels:
+    app: monsterui
+    test: 'true'
+    environment: testing
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: monsterui
+        test: 'true'
+        environment: testing
+      annotations:
+        pod.beta.kubernetes.io/init-containers: |-
+          [
+              {
+                  "name": "kubewait",
+                  "image": "callforamerica/kubewait",
+                  "imagePullPolicy": "IfNotPresent",
+                  "args": ["kazoo"],
+                  "env": [
+                      {
+                          "name": "NAMESPACE",
+                          "valueFrom": {
+                              "fieldRef": {
+                                  "apiVersion": "v1",
+                                  "fieldPath": "metadata.namespace"
+                              }
+                          }
+                      }
+                  ]
+              }
+          ]
+    spec:
+      containers:
+      - name: monsterui
+        image: callforamerica/monsterui:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: NGINX_PROXY_PROTOCOL
+          valueFrom:
+            configMap:
+              name: monsterui
+              key: nginx.proxy-protocol
+        - name: NGINX_LOG_LEVEL
+          valueFrom:
+            configMap:
+              name: monsterui
+              key: nginx.log.level
+        - name: NGINX_HTTP_CLIENT_MAX_BODY_SIZE
+          valueFrom:
+            configMap:
+              name: monsterui
+              key: nginx.http-client.max-body-size
+        - name: MONSTERUI_CROSSBAR_URI
+          valueFrom:
+            configMapKeyRef:
+              name: monsterui
+              key: monsterui.crossbar.uri
+        - name: MONSTERUI_WEBSOCKET_URI
+          valueFrom:
+            configMapKeyRef:
+              name: monsterui
+              key: monsterui.websocket.uri
+        - name: MONSTERUI_WEBPHONE_URI
+          valueFrom:
+            configMapKeyRef:
+              name: monsterui
+              key: monsterui.webphone.uri
+        - name: MONSTERUI_DISABLE_BRAINTREE
+          valueFrom:
+            configMapKeyRef:
+              name: monsterui
+              key: monsterui.disable-braintree
+        ports:
+        - name: http
+          containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 5
+      restartPolicy: Always
