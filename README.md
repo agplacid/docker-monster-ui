@@ -45,7 +45,6 @@ All environment variables in this image are used in the following templates in t
 * `MONSTERUI_PROVISIONER_URI`
 * `MONSTERUI_WEBSOCKET_URI`
 * `MONSTERUI_WEBPHONE_URI`
-
 * `MONSTERUI_KAZOO_CLUSTER_ID`
 * `MONSTERUI_RESELLER_ID`
 * `MONSTERUI_DISABLE_BRAINTREE`
