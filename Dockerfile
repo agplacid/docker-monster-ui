@@ -41,7 +41,6 @@ RUN     /tmp/build.sh
 
 COPY    entrypoint /
 COPY    build/templates /templates
-COPY    build/wait-for /usr/local/bin/
 
 ENV     NGINX_LOG_LEVEL warn
 ENV     NGINX_HTTP_CLIENT_MAX_BODY_SIZE 30M
