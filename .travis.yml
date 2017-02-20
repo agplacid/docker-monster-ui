@@ -1,0 +1,34 @@
+language: python
+python:
+- "3.6"
+services: docker
+env:
+  global:
+  - DOCKER_USER=callforamerica
+  # DOCKER_PASS
+  - secure: "OyLRNruAclN6oRrUzO5gZlASCR9XwQxwDL0Mewk20QbK24w5F11AEFmfR8Efaa96AeGg97gs7h4PlrQL2DQc1nTaxG0+r/6SG2iFjgS1SICF9x7GTNDAL6JBFWcqX0DGIMQh4T8y9/+zwAKog0P/sU4GYNxoRv08O/Q6DTwILYHooNH1VtUvti2MlpYSRQVSwEUPzrtVEHH/yjALMBzeVofAiOLd8dd5Pcl1999qFe+w6vh2bAuvTKrMeoZ0VUue/+r3FoblHsEs3V31ODzlKpOjy9d2Da4uCzOqFjGh43sap6pLlTE/WZ3je9Exyji6lJ+nLvXbayIUwElTfNHzHU7A2upxfqG2YVSoYUQUeey7PS2GWV+FtqWBkZN57V6QrSFxh2j7iE4l8Ht15IefefXuMU3plRwv4eX5uMth4hWMnTbSQQ4yfttDOSNY+cAap2XTF3BDMlS2rN/0QDiMDIgiJIa5QeWZH07huYs19tSc3hp7a2Py2XIgtvwcEAjMNka/2vMn7UudOJBdV60OHKSFUMNrUTlU9/6YnDQbdb2B/F3Gaw8Nz+S8zbeT+epCUiaPzTTS1K/XBdRjlKdpFkQbqH33x8UnwF7HGolIShfhwtk4GeZXv9y5MzeOX9EV0bQMfuKLbI/mh8XQF+IK53uFRDFb+xvBrWJZTN1kxzw="
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+  slack:
+    rooms:
+    - secure: "h90AuVNbQ+7axAlfUNcm7HNcKsdCBRFQYy/vTjqyuNTzbJktym1No6zbTkjzCA/CL8aCpmaYFT14uxFFwjeG1mGLzH2rtEGnfjGA+I+95hBx++idPa27KFhPuxXx3A09q9a3RdHdB1LXl8EacBqL8+asrooU5qFDc8y4QCIRvUBq4eR5OvNrziZIyO4I/uQ7J3zf/eIfYy3VzYNpn2Z0t2tLuZW2lZkbqo1mkGRrDlwDAJfUsy5wvRRS8T/I3aaHpuhldGdMPFb5bTRKLXHYYMQUOUEa9MF/InMKG5tYNwtG38nX+mB0/i+DTxyjylCfRszms+gUiyWPKikzU8LbPR7EH1RQH7wIBrF3YfA4w0ZHZxTl+xm8w9pqqbIL8WbRDFybYFTVcNzyDWroOySIpRHt4yLeI8K9TBiIYRjMjRIyVoun5+re2xCe1KiIAJVRUU0NmChq4ueK32P62hostBCjCNmu7W08iZ0V4YJ1zVRuB/C/p3/aSASOKC7gXNC8+C9MBxqIu0v6cIkRSl+32AlmvlDjoTP81SHrQeGBw7EiInBgOU7JzIZ2x/SFI6l4R9iXlCeLQHJaN9adTJebbFri2324by7fW6a1n2xPF7aAu1NBIhHE5tJQoKvoLb4HZJTEvPzSaAc/nlkg8l75Ghim3m21dzjy2PvYroj7oXk="
+    on_success: always
+    on_failure: always
+
+before_install:
+- pip3 install --upgrade docker-compose pyinvoke
+- source scripts/ci/environment.sh
+- clone-deps rabbitmq couchdb freeswitch kamailio kazoo
+- pull-deps rabbitmq couchdb freeswitch kamailio kazoo
+
+# install: docker-compose build monsterui
+install: inv dc.build
+
+# script: tests/run
+script: inv test
+
+after_success:
+- ci-tag-build
+- hub-push

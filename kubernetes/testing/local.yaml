@@ -9,7 +9,7 @@ metadata:
 data:
   nginx.log.level: warn
   nginx.proxy-protocol: 'false'
-  # monsterui.crossbar.uri: //minikube.valuphone.local:8000/v2/
+  monsterui.crossbar.uri: //minikube.valuphone.local:8000/v2/
   monsterui.websocket.uri: ws://minikube.valuphone.local:5555
   monsterui.webphone.uri: ws://minikube.valuphone.local:5064
   monsterui.disable-braintree: 'false'

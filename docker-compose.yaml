@@ -8,7 +8,6 @@ services:
       args:
         TMPLD_VERSION: '0.2.3'
     image: "callforamerica/monsterui:${TAG:-latest}"
-    # command: wait-for kazoo:8000 && exec /entrypoint
     env_file: default.env
     ports:
     - "80:80"
@@ -16,5 +15,77 @@ services:
       local:
         aliases:
         - monsterui.local
+  kazoo:
+    container_name: kazoo
+    hostname: kazoo.local
+    image: "callforamerica/kazoo:latest"
+    env_file: ../docker-kazoo/default.env
+    ports:
+    - "5555:5555"
+    - "8000:8000"
+    - "19025:19025"
+    - "24517:24517"
+    networks:
+      local:
+        aliases:
+        - kazoo.local
+    depends_on:
+      rabbitmq-alpha:
+        condition: service_healthy
+      rabbitmq-beta:
+        condition: service_healthy
+      couchdb:
+        condition: service_healthy
+  kamailio:
+    container_name: kamailio
+    hostname: kamailio.valuphone.local
+    build: .
+    image: callforamerica/kamailio:${TAG:-latest}
+    env_file: ../docker-kamailio/default.env
+    ports:
+    - "5060-5061:5060-5061"
+    - "5060:5060/udp"
+    - "5064-5065:5064-5065"
+    - "5064-5065:5064-5065/udp"
+    - "7000-7001:7000-7001"
+    - "7000:7000/udp"
+    networks:
+      local:
+        aliases:
+        - kamailio.local
+    cap_add:
+    - IPC_LOCK
+    - NET_ADMIN
+    - NET_RAW
+    - NET_BROADCAST
+    - SYS_NICE
+    - SYS_RESOURCE
+    depends_on:
+      rabbitmq-alpha:
+        condition: service_healthy
+      rabbitmq-beta:
+        condition: service_healthy
+      freeswitch:
+        condition: service_healthy
+    networks:
+      local:
+        aliases:
+        - kamailio.valuphone.local
+  rabbitmq-alpha:
+    extends:
+      file: ../docker-rabbitmq/docker-compose-ha.yaml
+      service: rabbitmq-alpha
+  rabbitmq-beta:
+    extends:
+      file: ../docker-rabbitmq/docker-compose-ha.yaml
+      service: rabbitmq-beta
+  couchdb:
+    extends:
+      file: ../docker-couchdb/docker-compose.yaml
+      service: couchdb
+  freeswitch:
+    extends:
+      file: ../docker-freeswitch/docker-compose.yaml
+      service: freeswitch
 networks:
   local:

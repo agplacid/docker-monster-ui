@@ -51,6 +51,11 @@ spec:
             configMap:
               name: monsterui
               key: nginx.http-client.max-body-size
+        - name: NGINX_LOAD_BALANCER_CIDR
+          valueFrom:
+            configMap:
+              name: monsterui
+              key: nginx.load-balancer.cidr
         - name: MONSTERUI_CROSSBAR_URI
           valueFrom:
             configMapKeyRef:
