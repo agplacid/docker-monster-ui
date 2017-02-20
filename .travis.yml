@@ -18,7 +18,7 @@ notifications:
     on_failure: always
 
 before_install:
-- pip3 install --upgrade docker-compose pyinvoke
+- pip3 install --upgrade docker-compose invoke
 - source scripts/ci/environment.sh
 - clone-deps rabbitmq couchdb freeswitch kamailio kazoo
 - pull-deps rabbitmq couchdb freeswitch kamailio kazoo
