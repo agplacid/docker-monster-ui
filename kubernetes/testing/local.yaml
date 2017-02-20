@@ -9,8 +9,8 @@ metadata:
 data:
   nginx.log.level: warn
   nginx.proxy-protocol: 'false'
-  monsterui.crossbar.uri: //minikube.valuphone.local:8000/v2/
-  monsterui.websocket.uri: ws://minikube.valuphone.local:5555
+  monsterui.crossbar.uri: //minikube.valuphone.local:30800/v2/
+  monsterui.websocket.uri: ws://minikube.valuphone.local:30055
   monsterui.webphone.uri: ws://minikube.valuphone.local:5064
   monsterui.disable-braintree: 'false'
 ---
@@ -23,11 +23,13 @@ metadata:
     test: 'true'
     environment: testing
 spec:
+  type: NodePort
   selector:
     app: monsterui
   ports:
   - name: http
     port: 80
+    nodePort: 30080
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -74,19 +76,14 @@ spec:
         env:
         - name: NGINX_PROXY_PROTOCOL
           valueFrom:
-            configMap:
+            configMapKeyRef:
               name: monsterui
               key: nginx.proxy-protocol
         - name: NGINX_LOG_LEVEL
           valueFrom:
-            configMap:
+            configMapKeyRef:
               name: monsterui
               key: nginx.log.level
-        - name: NGINX_HTTP_CLIENT_MAX_BODY_SIZE
-          valueFrom:
-            configMap:
-              name: monsterui
-              key: nginx.http-client.max-body-size
         - name: MONSTERUI_CROSSBAR_URI
           valueFrom:
             configMapKeyRef:

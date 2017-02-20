@@ -2,10 +2,10 @@ import os
 
 from invoke import task, Collection
 
-from . import test, dc, kube
+from . import test, dc, kube, sup
 
 
-COLLECTIONS = [test, dc, kube]
+COLLECTIONS = [test, dc, kube, sup]
 
 ns = Collection()
 for c in COLLECTIONS:
