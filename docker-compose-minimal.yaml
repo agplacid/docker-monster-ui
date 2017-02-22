@@ -8,7 +8,14 @@ services:
       args:
         TMPLD_VERSION: '0.2.3'
     image: "callforamerica/monsterui:${TAG:-latest}"
-    env_file: default.env
+    environment:
+      NGINX_PROXY_PROTOCOL: 'false'
+      NGINX_LOG_LEVEL: warn
+      MONSTERUI_CROSSBAR_URI: http://localhost:8000/v2/
+      MONSTERUI_WEBSOCKET_URI: ws://localhost:5555
+      MONSTERUI_WEBPHONE_URI: ws://localhost:5064
+      MONSTERUI_DISABLE_BRAINTREE: 'false'
+      MONSTERUI_SHOW_JS_ERRORS: 'true'
     ports:
     - "80:80"
     networks:

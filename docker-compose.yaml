@@ -8,7 +8,14 @@ services:
       args:
         TMPLD_VERSION: '0.2.3'
     image: "callforamerica/monsterui:${TAG:-latest}"
-    env_file: default.env
+    environment:
+      NGINX_PROXY_PROTOCOL: 'false'
+      NGINX_LOG_LEVEL: warn
+      MONSTERUI_CROSSBAR_URI: http://localhost:8000/v2/
+      MONSTERUI_WEBSOCKET_URI: ws://localhost:5555
+      MONSTERUI_WEBPHONE_URI: ws://localhost:5064
+      MONSTERUI_DISABLE_BRAINTREE: 'false'
+      MONSTERUI_SHOW_JS_ERRORS: 'true'
     ports:
     - "80:80"
     networks:
@@ -18,8 +25,13 @@ services:
   kazoo:
     container_name: kazoo
     hostname: kazoo.local
-    image: "callforamerica/kazoo:latest"
-    env_file: ../docker-kazoo/default.env
+    image: callforamerica/kazoo:latest
+    environment:
+      KAZOO_AMQP_HOSTS: rabbitmq-alpha.local,rabbitmq-beta.local
+      COUCHDB_HOST: couchdb.local
+      KAZOO_LOG_LEVEL: info
+      KAZOO_APPS: blackhole,callflow,cdr,conference,crossbar,doodle,ecallmgr,hangups,hotornot,konami,jonny5,media_mgr,milliwatt,omnipresence,pivot,registrar,reorder,stepswitch,sysconf,teletype,trunkstore,webhooks
+      ERLANG_COOKIE: test-cookie
     ports:
     - "5555:5555"
     - "8000:8000"
@@ -40,7 +52,7 @@ services:
     container_name: kamailio
     hostname: kamailio.valuphone.local
     build: .
-    image: callforamerica/kamailio:${TAG:-latest}
+    image: callforamerica/kamailio:latest
     env_file: ../docker-kamailio/default.env
     ports:
     - "5060-5061:5060-5061"
@@ -72,20 +84,68 @@ services:
         aliases:
         - kamailio.valuphone.local
   rabbitmq-alpha:
-    extends:
-      file: ../docker-rabbitmq/docker-compose-ha.yaml
-      service: rabbitmq-alpha
+    container_name: rabbitmq-alpha
+    hostname: rabbitmq-alpha.local
+    environment:
+      ERLANG_COOKIE: test-cookie
+      RABBITMQ_USE_LONGNAME: 'true'
+    image: callforamerica/rabbitmq:latest
+    networks:
+      local:
+        aliases:
+        - rabbitmq-alpha.local
   rabbitmq-beta:
-    extends:
-      file: ../docker-rabbitmq/docker-compose-ha.yaml
-      service: rabbitmq-beta
+    container_name: rabbitmq-beta
+    hostname: rabbitmq-beta.local
+    environment:
+      ERLANG_COOKIE: test-cookie
+      RABBITMQ_USE_LONGNAME: 'true'
+    image: callforamerica/rabbitmq:latest
+    networks:
+      local:
+        aliases:
+        - rabbitmq-beta.local
   couchdb:
-    extends:
-      file: ../docker-couchdb/docker-compose.yaml
-      service: couchdb
+    container_name: couchdb
+    hostname: couchdb.local
+    image: callforamerica/couchdb:latest
+    environment:
+      LOCAL_DEV_CLUSTER: 'true'
+      COUCHDB_ADMIN_USER: admin
+      COUCHDB_ADMIN_PASS: secret
+      ERLANG_COOKIE: test-cookie
+    ports:
+    - "5984:5984"
+    - "5986:5986"
+    networks:
+      local:
+        aliases:
+        - couchdb.local
   freeswitch:
-    extends:
-      file: ../docker-freeswitch/docker-compose.yaml
-      service: freeswitch
+    container_name: freeswitch
+    hostname: freeswitch.local
+    image: callforamerica/freeswitch:latest
+    environment:
+      FREESWITCH_DISABLE_NAT_DETECTION: 'false'
+      FREESWITCH_RTP_START_PORT: 16384
+      FREESWITCH_RTP_END_PORT: 16484
+      ERLANG_COOKIE: test-cookie
+    ports:
+    - "11000:10000"
+    - "11000:10000/udp"
+    - "16384-16484:16384-16484/udp"
+    - "8021:8021"
+    - "8031:8031"
+    networks:
+      local:
+        aliases:
+        - freeswitch.local
+    cap_add:
+    - IPC_LOCK
+    - NET_ADMIN
+    - NET_RAW
+    - NET_BROADCAST
+    - SYS_NICE
+    - SYS_RESOURCE
 networks:
   local:
