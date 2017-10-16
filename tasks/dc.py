@@ -1,4 +1,4 @@
-from invoke import task
+from invoke import task, call
 
 
 DOCKER_COMPOSE_FILES = ['docker-compose-deps.yaml', 'docker-compose.yaml']
@@ -13,29 +13,52 @@ def flags_to_arg_string(flags):
 
 
 @task(default=True)
-def up(ctx, d=False, flags=None):
-    flags = DOCKER_COMPOSE_DEFAULTS['up'] + flags or []
+def up(ctx, d=False):
+    args = []
     if d:
-        flags.append('d')
-    ctx.run('docker-compose {} {}'.format('up', flags_to_arg_string(flags)))
+        args.append('-d')
+    args = ' '.join(args)
+    ctx.run('docker-compose {} {}'.format('up', args))
+
+
+@task(pre=[call(up, d=True)])
+def launch(ctx):
+    pass
 
 
 @task
 def down(ctx, flags=None):
-    flags = DOCKER_COMPOSE_DEFAULTS['down'] + flags or []
+    flags = DOCKER_COMPOSE_DEFAULTS['down'] + (flags or [])
     ctx.run('docker-compose {} {}'.format('down', flags_to_arg_string(flags)))
 
 
-@task
-def rm(ctx):
+@task(pre=[down])
+def rmf(ctx):
     ctx.run('docker-compose {} {}'.format('rm', '-v'))
 
 
 @task
-def build(ctx):
-    ctx.run('docker-compose {} {}'.format('build', 'monsterui'))
+def build(ctx, rc=False):
+    cmd = ['docker-compose']
+    if rc:
+        cmd.append('-f docker-compose-rc-test.yaml')
+    cmd.append('build')
+    ctx.run(' '.join(cmd))
+
+
+@task(pre=[rmf, build, up])
+def rebuild(ctx):
+    pass
 
 
 @task
-def rebuild(ctx):
-    ctx.run('docker-compose {} {}'.format('build', '--no-cache'))
+def logs(ctx, follow=True):
+    flags = '-f' if follow else ''
+    ctx.run('docker-compose {} {}'.format('logs', flags))
+
+
+@task
+def shell(ctx, service=None, sh=None):
+    service = service or ctx.docker.name
+    sh = sh or ctx.docker.shell
+    ctx.run('docker exec -ti {} {}'.format(service, sh), pty=True)

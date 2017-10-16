@@ -1,4 +1,4 @@
-version: '2.1'
+version: '2.2'
 services:
   monsterui:
     container_name: monsterui
@@ -7,7 +7,7 @@ services:
       context: .
       args:
         TMPLD_VERSION: '0.2.3'
-    image: "callforamerica/monsterui:${TAG:-latest}"
+    image: "telephoneorg/monsterui:${TAG:-latest}"
     environment:
       NGINX_PROXY_PROTOCOL: 'false'
       NGINX_LOG_LEVEL: warn
@@ -25,9 +25,10 @@ services:
   kazoo:
     container_name: kazoo
     hostname: kazoo.local
-    image: callforamerica/kazoo:latest
+    image: telephoneorg/kazoo:latest
     environment:
-      KAZOO_AMQP_HOSTS: rabbitmq-alpha.local,rabbitmq-beta.local
+      ERLANG_HOSTNAME: long
+      RABBITMQ_HOSTS: rabbitmq.local
       COUCHDB_HOST: couchdb.local
       KAZOO_LOG_LEVEL: info
       KAZOO_APPS: blackhole,callflow,cdr,conference,crossbar,doodle,ecallmgr,hangups,hotornot,konami,jonny5,media_mgr,milliwatt,omnipresence,pivot,registrar,reorder,stepswitch,sysconf,teletype,trunkstore,webhooks
@@ -42,18 +43,18 @@ services:
         aliases:
         - kazoo.local
     depends_on:
-      rabbitmq-alpha:
-        condition: service_healthy
-      rabbitmq-beta:
+      rabbitmq:
         condition: service_healthy
       couchdb:
         condition: service_healthy
   kamailio:
     container_name: kamailio
     hostname: kamailio.valuphone.local
-    build: .
-    image: callforamerica/kamailio:latest
-    env_file: ../docker-kamailio/default.env
+    image: telephoneorg/kamailio:latest
+    environment:
+      KAMAILIO_LOG_LEVEL: info
+      KAMAILIO_ENABLE_ROLES: websockets,message,presence_query,presence_notify_sync,registrar_sync
+      RABBITMQ_HOSTS: rabbitmq.local
     ports:
     - "5060-5061:5060-5061"
     - "5060:5060/udp"
@@ -61,10 +62,6 @@ services:
     - "5064-5065:5064-5065/udp"
     - "7000-7001:7000-7001"
     - "7000:7000/udp"
-    networks:
-      local:
-        aliases:
-        - kamailio.local
     cap_add:
     - IPC_LOCK
     - NET_ADMIN
@@ -72,45 +69,33 @@ services:
     - NET_BROADCAST
     - SYS_NICE
     - SYS_RESOURCE
+    networks:
+      local:
+        aliases:
+        - kamailio.telephoneorg.local
     depends_on:
-      rabbitmq-alpha:
-        condition: service_healthy
-      rabbitmq-beta:
+      rabbitmq:
         condition: service_healthy
       freeswitch:
         condition: service_healthy
-    networks:
-      local:
-        aliases:
-        - kamailio.valuphone.local
-  rabbitmq-alpha:
-    container_name: rabbitmq-alpha
-    hostname: rabbitmq-alpha.local
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: rabbitmq.local
     environment:
+      ERLANG_HOSTNAME: long
       ERLANG_COOKIE: test-cookie
-      RABBITMQ_USE_LONGNAME: 'true'
-    image: callforamerica/rabbitmq:latest
+    image: telephoneorg/rabbitmq:latest
     networks:
       local:
         aliases:
-        - rabbitmq-alpha.local
-  rabbitmq-beta:
-    container_name: rabbitmq-beta
-    hostname: rabbitmq-beta.local
-    environment:
-      ERLANG_COOKIE: test-cookie
-      RABBITMQ_USE_LONGNAME: 'true'
-    image: callforamerica/rabbitmq:latest
-    networks:
-      local:
-        aliases:
-        - rabbitmq-beta.local
+        - rabbitmq.local
   couchdb:
     container_name: couchdb
     hostname: couchdb.local
-    image: callforamerica/couchdb:latest
+    image: telephoneorg/couchdb:latest
     environment:
-      LOCAL_DEV_CLUSTER: 'true'
+      ERLANG_HOSTNAME: long
+      COUCHDB_DEV_INIT: 'true'
       COUCHDB_ADMIN_USER: admin
       COUCHDB_ADMIN_PASS: secret
       ERLANG_COOKIE: test-cookie
@@ -124,11 +109,11 @@ services:
   freeswitch:
     container_name: freeswitch
     hostname: freeswitch.local
-    image: callforamerica/freeswitch:latest
+    image: telephoneorg/freeswitch:latest
     environment:
+      ERLANG_HOSTNAME: long
       FREESWITCH_DISABLE_NAT_DETECTION: 'false'
-      FREESWITCH_RTP_START_PORT: 16384
-      FREESWITCH_RTP_END_PORT: 16484
+      FREESWITCH_RTP_PORT_RANGE: 16384-16484
       ERLANG_COOKIE: test-cookie
     ports:
     - "11000:10000"

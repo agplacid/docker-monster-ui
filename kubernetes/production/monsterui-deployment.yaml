@@ -4,7 +4,7 @@ metadata:
   name: monsterui
   labels:
     app: monsterui
-    project: valuphone
+    project: telephoneorg
     environment: production
 spec:
   replicas: 1
@@ -12,33 +12,24 @@ spec:
     metadata:
       labels:
         app: monsterui
-        project: valuphone
+        project: telephoneorg
         environment: production
-      annotations:
-        pod.beta.kubernetes.io/init-containers: |-
-          [
-              {
-                  "name": "kubewait",
-                  "image": "callforamerica/kubewait",
-                  "imagePullPolicy": "IfNotPresent",
-                  "args": ["kazoo"],
-                  "env": [
-                      {
-                          "name": "NAMESPACE",
-                          "valueFrom": {
-                              "fieldRef": {
-                                  "apiVersion": "v1",
-                                  "fieldPath": "metadata.namespace"
-                              }
-                          }
-                      }
-                  ]
-              }
-          ]
     spec:
+      initContainers:
+      - name: kubewait
+        image: telephoneorg/kubewait
+        imagePullPolicy: IfNotPresent
+        args:
+        - kazoo
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
       containers:
       - name: monsterui
-        image: callforamerica/monsterui
+        image: telephoneorg/monsterui:latest
         imagePullPolicy: Always
         env:
         - name: NGINX_LOG_LEVEL

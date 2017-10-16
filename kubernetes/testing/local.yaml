@@ -9,9 +9,9 @@ metadata:
 data:
   nginx.log.level: warn
   nginx.proxy-protocol: 'false'
-  monsterui.crossbar.uri: //minikube.valuphone.local:30800/v2/
-  monsterui.websocket.uri: ws://minikube.valuphone.local:30055
-  monsterui.webphone.uri: ws://minikube.valuphone.local:5064
+  monsterui.crossbar.uri: //minikube.telephoneorg.local:30800/v2/
+  monsterui.websocket.uri: ws://minikube.telephoneorg.local:30055
+  monsterui.webphone.uri: ws://minikube.telephoneorg.local:5064
   monsterui.disable-braintree: 'false'
 ---
 apiVersion: v1
@@ -47,31 +47,22 @@ spec:
         app: monsterui
         test: 'true'
         environment: testing
-      annotations:
-        pod.beta.kubernetes.io/init-containers: |-
-          [
-              {
-                  "name": "kubewait",
-                  "image": "callforamerica/kubewait",
-                  "imagePullPolicy": "IfNotPresent",
-                  "args": ["kazoo"],
-                  "env": [
-                      {
-                          "name": "NAMESPACE",
-                          "valueFrom": {
-                              "fieldRef": {
-                                  "apiVersion": "v1",
-                                  "fieldPath": "metadata.namespace"
-                              }
-                          }
-                      }
-                  ]
-              }
-          ]
     spec:
+      initContainers:
+      - name: kubewait
+        image: telephoneorg/kubewait
+        imagePullPolicy: IfNotPresent
+        args:
+        - kazoo
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
       containers:
       - name: monsterui
-        image: callforamerica/monsterui:latest
+        image: telephoneorg/monsterui:latest
         imagePullPolicy: IfNotPresent
         env:
         - name: NGINX_PROXY_PROTOCOL

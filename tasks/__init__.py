@@ -17,7 +17,12 @@ ns.configure(dict(
     pwd=os.getcwd(),
     docker=dict(
         user=os.getenv('DOCKER_USER'),
-        tag='%s/%s:latest' % (os.getenv('DOCKER_USER'), 'monsterui')
+        org=os.getenv('DOCKER_ORG', os.getenv('DOCKER_USER', 'telephoneorg')),
+        name='monsterui',
+        tag='%s/%s:latest' % (
+            os.getenv('DOCKER_ORG', os.getenv('DOCKER_USER', 'telephoneorg')), 'monsterui'
+        ),
+        shell='bash'
     ),
     kube=dict(
         environment='testing'

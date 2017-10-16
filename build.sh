@@ -9,20 +9,17 @@ build::user::create $USER
 
 log::m-info "Installing $APP repo ..."
 build::apt::add-key 7BD9BF62
-echo -e 'deb http://nginx.org/packages/debian/ jessie nginx\ndeb-src http://nginx.org/packages/debian/ jessie nginx' > \
+echo -e 'deb http://nginx.org/packages/debian/ stretch nginx' > \
     /etc/apt/sources.list.d/nginx.list
-apt-get -q update
+apt-get -qq update
 
 
 log::m-info "Installing essentials ..."
-apt-get install -qq -y curl ca-certificates git
+apt-get install -yqq curl ca-certificates git
 
 
 log::m-info "Installing $APP ..."
-apt_nginx_vsn=$(build::apt::get-version nginx)
-
-log::m-info "apt versions:  nginx: $apt_nginx_vsn"
-apt-get install -qq -y nginx=$apt_nginx_vsn
+apt-get install -qq -y nginx
 
 
 log::m-info "Installing nodejs v$NODE_VERSION ..."
@@ -47,29 +44,27 @@ pushd $_
                         --depth 1 https://github.com/2600hz/monster-ui-${app} \
                         $app
                 done
+                popd
+            npm install
+            gulp build-prod
+            pushd dist/apps
                 git clone -b $MONSTER_APP_APIEXPLORER_BRANCH --single-branch \
                     --depth 1 https://github.com/siplabs/monster-ui-apiexplorer \
                     apiexplorer
-                cd ..
-                    sed -i "/paths/a \
-                        \                'hljs': 'apps\/apiexplorer\/lib\/highlight\.pack',\n                'clipboard': 'apps\/apiexplorer\/lib\/clipboard\.min'," js/main.js
-                    sed -i "/[(]'jqueryui'[)],/a \
-                        \                Handlebars = require('handlebars')," apps/apiexplorer/app.js
-                    popd
-                npm install
-                gulp build-prod
+                rm -rf apiexplorer/.git
+                popd
 
-                npm uninstall
-                find -mindepth 1 -maxdepth 1 -not -name dist -exec rm -rf {} \;
-                mv dist/* .
-                rm -rf dist
+            npm uninstall
+            find -mindepth 1 -maxdepth 1 -not -name dist -exec rm -rf {} \;
+            mv dist/* .
+            rm -rf dist
 
-                log::m-info "Downloading pdf's from 2600hz ..."
-                curl -sSL -o Editable.LOA.Form.pdf \
-                    http://ui.zswitch.net/Editable.LOA.Form.pdf
-                curl -sSL -o Editable.Resporg.Form.pdf \
-                    http://ui.zswitch.net/Editable.Resporg.Form.pdf
-                chmod 0777 *.pdf
+            log::m-info "Downloading pdf's from 2600hz ..."
+            curl -sSL -o Editable.LOA.Form.pdf \
+                http://ui.zswitch.net/Editable.LOA.Form.pdf
+            curl -sSL -o Editable.Resporg.Form.pdf \
+                http://ui.zswitch.net/Editable.Resporg.Form.pdf
+            chmod 0777 *.pdf
 
 
 log::m-info "Removing npm & gulp ..."
@@ -88,7 +83,7 @@ log::m-info "Installing python3 ..."
 apt-get install -yqq python3 python3-pip
 # vendor version of pip becomes broken by newer requests, need to upgrade both
 # vendor veresion of six 1.8.0 doesn't support the api being used by pykube
-pip3 install --upgrade pip requests six
+pip3 install --upgrade pip requests six setuptools
 
 
 log::m-info "Installing tmpld ..."

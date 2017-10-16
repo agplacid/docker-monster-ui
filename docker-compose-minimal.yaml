@@ -1,4 +1,4 @@
-version: '2.1'
+version: '2.2'
 services:
   monsterui:
     container_name: monsterui
@@ -7,7 +7,7 @@ services:
       context: .
       args:
         TMPLD_VERSION: '0.2.3'
-    image: "callforamerica/monsterui:${TAG:-latest}"
+    image: "telephoneorg/monsterui:${TAG:-latest}"
     environment:
       NGINX_PROXY_PROTOCOL: 'false'
       NGINX_LOG_LEVEL: warn

@@ -1,36 +1,27 @@
-FROM callforamerica/debian
+FROM telephoneorg/debian:stretch
 
-MAINTAINER Joe Black <joeblack949@gmail.com>
+MAINTAINER Joe Black <me@joeblack.nyc>
 
 
-ARG     MONSTER_UI_VERSION
 ARG     MONSTER_UI_BRANCH
-ARG     MONSTER_APPS_VERSION
-ARG     MONSTER_APPS_BRANCH
 ARG     MONSTER_APPS
+ARG     MONSTER_APPS_BRANCH
 ARG     MONSTER_APP_APIEXPLORER_BRANCH
 ARG     NGINX_VERSION
 ARG     NODE_VERSION
 ARG     TMPLD_VERSION
 
-ENV     NGINX_VERSION ${NGINX_VERSION:-1.10.0}
-ENV     MONSTER_UI_VERSION ${MONSTER_UI_VERSION:-4.0}
-ENV     MONSTER_UI_BRANCH ${MONSTER_UI_BRANCH:-4.0}
-ENV     MONSTER_APPS_VERSION ${MONSTER_APPS_VERSION:-4.0}
-ENV     MONSTER_APPS_BRANCH ${MONSTER_APPS_BRANCH:-$MONSTER_APPS_VERSION}
+ENV     MONSTER_UI_BRANCH ${MONSTER_UI_BRANCH:-4.2}
 ENV     MONSTER_APPS ${MONSTER_APPS:-accounts,callflows,fax,numbers,pbxs,voip,voicemails,webhooks}
+ENV     MONSTER_APPS_BRANCH ${MONSTER_APPS_BRANCH:-$MONSTER_UI_BRANCH}
 ENV     MONSTER_APP_APIEXPLORER_BRANCH ${MONSTER_APP_APIEXPLORER_BRANCH:-master}
 ENV     NODE_VERSION ${NODE_VERSION:-6}
 ENV     TMPLD_VERSION ${TMPLD_VERSION:-0.2.3}
 
-LABEL   app.nginx.version=$NGINX_VERSION
-LABEL   app.monsterui.version=$MONSTER_UI_VERSION
-LABEL   app.monsterui.branch=$MONSTER_UI_BRANCH
+LABEL   app.kazoo.monster-ui.core.branch=$MONSTER_UI_BRANCH
+LABEL   app.kazoo.monster-ui.apps.list="${MONSTER_APPS},apiexplorer"
+LABEL   app.kazoo.monster-ui.apps.branch=$MONSTER_APPS_BRANCH
 LABEL   app.tmpld.version=$TMPLD_VERSION
-
-LABEL   app.monster-apps.version=$MONSTER_APPS_VERSION
-LABEL   app.monster-apps.branch=${MONSTER_APPS_BRANCH}
-LABEL   app.monster-apps.apps="${MONSTER_APPS},apiexplorer"
 
 ENV     APP monsterui
 ENV     USER $APP

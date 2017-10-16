@@ -9,6 +9,6 @@ target: kubernetes/testing/deps.yaml
 # {{ dep|upper }}
 #
 ---
-{{ file('../../docker-%s/kubernetes/testing/local.yaml' %dep) }}
+{{ file('../../docker-%s/kubernetes/testing/local.yaml' % dep) }}
 
 {% endfor -%}
