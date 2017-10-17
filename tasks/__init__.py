@@ -12,15 +12,15 @@ for c in COLLECTIONS:
     ns.add_collection(c)
 
 ns.configure(dict(
-    project='monsterui',
-    repo='docker-monsterui',
+    project='monster-ui',
+    repo='docker-monster-ui',
     pwd=os.getcwd(),
     docker=dict(
         user=os.getenv('DOCKER_USER'),
         org=os.getenv('DOCKER_ORG', os.getenv('DOCKER_USER', 'telephoneorg')),
-        name='monsterui',
+        name='monster-ui',
         tag='%s/%s:latest' % (
-            os.getenv('DOCKER_ORG', os.getenv('DOCKER_USER', 'telephoneorg')), 'monsterui'
+            os.getenv('DOCKER_ORG', os.getenv('DOCKER_USER', 'telephoneorg')), 'monster-ui'
         ),
         shell='bash'
     ),

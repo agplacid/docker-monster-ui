@@ -1,9 +1,9 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: monsterui
+  name: monster-ui
   labels:
-    app: monsterui
+    app: monster-ui
     project: telephoneorg
     environment: production
 spec:
@@ -11,7 +11,7 @@ spec:
   template:
     metadata:
       labels:
-        app: monsterui
+        app: monster-ui
         project: telephoneorg
         environment: production
     spec:
@@ -28,45 +28,45 @@ spec:
               apiVersion: v1
               fieldPath: metadata.namespace
       containers:
-      - name: monsterui
-        image: telephoneorg/monsterui:latest
+      - name: monster-ui
+        image: telephoneorg/monster-ui:latest
         imagePullPolicy: Always
         env:
         - name: NGINX_LOG_LEVEL
           valueFrom:
             configMapKeyRef:
-              name: monsterui
+              name: monster-ui
               key: nginx.log.level
         - name: NGINX_HTTP_CLIENT_MAX_BODY_SIZE
           valueFrom:
             configMapKeyRef:
-              name: monsterui
+              name: monster-ui
               key: nginx.http-client.max-body-size
         - name: NGINX_LOAD_BALANCER_CIDR
           valueFrom:
             configMapKeyRef:
-              name: monsterui
+              name: monster-ui
               key: nginx.load-balancer.cidr
         - name: MONSTERUI_CROSSBAR_URI
           valueFrom:
             configMapKeyRef:
-              name: monsterui
-              key: monsterui.crossbar.uri
+              name: monster-ui
+              key: monster-ui.crossbar.uri
         - name: MONSTERUI_WEBSOCKET_URI
           valueFrom:
             configMapKeyRef:
-              name: monsterui
-              key: monsterui.websocket.uri
+              name: monster-ui
+              key: monster-ui.websocket.uri
         - name: MONSTERUI_WEBPHONE_URI
           valueFrom:
             configMapKeyRef:
-              name: monsterui
-              key: monsterui.webphone.uri
+              name: monster-ui
+              key: monster-ui.webphone.uri
         - name: MONSTERUI_DISABLE_BRAINTREE
           valueFrom:
             configMapKeyRef:
-              name: monsterui
-              key: monsterui.disable-braintree
+              name: monster-ui
+              key: monster-ui.disable-braintree
         ports:
         - name: http
           containerPort: 80

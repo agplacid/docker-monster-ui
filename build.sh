@@ -99,7 +99,7 @@ rm -f /etc/init.d/nginx* \
 log::m-info "Adding fixattr files ..."
 tee /etc/fixattrs.d/20-${APP}-perms <<EOF
 /etc/default/nginx* true $USER 644 755
-/etc/default/monsterui* true $USER 644 755
+/etc/default/monster-ui* true $USER 644 755
 /var/cache/nginx true $USER 755 755
 /var/log/nginx true $USER 755 755
 EOF

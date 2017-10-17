@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: monsterui
+  name: monster-ui
   labels:
-    app: monsterui
+    app: monster-ui
     project: telephoneorg
     environment: production
 data:
   nginx.log.level: warn
-  nginx.http-client.max-body-size: 30M
+  nginx.http-client.max-body-size: 50M
   nginx.load-balancer.cidr: '0.0.0.0/0'
   monsterui.crossbar.uri: //api.valuphone.com/v2/
   monsterui.websocket.uri: //wss.telephoneorg.com

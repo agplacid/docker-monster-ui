@@ -41,7 +41,7 @@ def ensure_account_created(containers):
 
 class TestContainer(ContainerTestMixin, unittest.TestCase):
     """
-    Test monsterui container.
+    Test monster-ui container.
 
     Attributes:
         name:
@@ -59,7 +59,7 @@ class TestContainer(ContainerTestMixin, unittest.TestCase):
         test_http_uris:
             (list) HTTP URI's to test are reachable
     """
-    name = 'monsterui'
+    name = 'monster-ui'
     tear_down = False
     test_patterns = [
         r'Starting nginx'

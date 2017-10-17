@@ -23,7 +23,7 @@ LABEL   app.kazoo.monster-ui.apps.list="${MONSTER_APPS},apiexplorer"
 LABEL   app.kazoo.monster-ui.apps.branch=$MONSTER_APPS_BRANCH
 LABEL   app.tmpld.version=$TMPLD_VERSION
 
-ENV     APP monsterui
+ENV     APP monster-ui
 ENV     USER $APP
 ENV     HOME /opt/$APP
 

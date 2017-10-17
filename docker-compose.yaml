@@ -1,13 +1,12 @@
-version: '2.2'
+version: '2.3'
 services:
-  monsterui:
-    container_name: monsterui
-    hostname: monsterui.local
+  monster-ui:
+    container_name: monster-ui
     build:
       context: .
       args:
         TMPLD_VERSION: '0.2.3'
-    image: "telephoneorg/monsterui:${TAG:-latest}"
+    image: "telephoneorg/monster-ui:${TAG:-latest}"
     environment:
       NGINX_PROXY_PROTOCOL: 'false'
       NGINX_LOG_LEVEL: warn
@@ -20,8 +19,6 @@ services:
     - "80:80"
     networks:
       local:
-        aliases:
-        - monsterui.local
   kazoo:
     container_name: kazoo
     hostname: kazoo.local

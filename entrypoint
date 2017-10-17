@@ -14,7 +14,11 @@ done
 
 
 log::m-info "Writing config templates ..."
-tmpld /templates/*.j2
+if [[ -d /config || -L /config ]]; then
+    tmpld /config/*.j2
+else
+    tmpld /templates/*.j2
+fi
 
 
 log::m-info "Starting nginx & $APP ..."

@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: monsterui
+  name: monster-ui
   labels:
-    app: monsterui
+    app: monster-ui
     project: telephoneorg
     environment: production
 spec:
   selector:
-    app: monsterui
+    app: monster-ui
     project: telephoneorg
     environment: production
   ports:

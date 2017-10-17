@@ -1,31 +1,31 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: monsterui
+  name: monster-ui
   labels:
-    app: monsterui
+    app: monster-ui
     test: 'true'
     environment: testing
 data:
   nginx.log.level: warn
   nginx.proxy-protocol: 'false'
-  monsterui.crossbar.uri: //minikube.telephoneorg.local:30800/v2/
-  monsterui.websocket.uri: ws://minikube.telephoneorg.local:30055
-  monsterui.webphone.uri: ws://minikube.telephoneorg.local:5064
-  monsterui.disable-braintree: 'false'
+  monster-ui.crossbar.uri: //minikube.telephoneorg.local:30800/v2/
+  monster-ui.websocket.uri: ws://minikube.telephoneorg.local:30055
+  monster-ui.webphone.uri: ws://minikube.telephoneorg.local:5064
+  monster-ui.disable-braintree: 'false'
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: monsterui
+  name: monster-ui
   labels:
-    app: monsterui
+    app: monster-ui
     test: 'true'
     environment: testing
 spec:
   type: NodePort
   selector:
-    app: monsterui
+    app: monster-ui
   ports:
   - name: http
     port: 80
@@ -34,9 +34,9 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: monsterui
+  name: monster-ui
   labels:
-    app: monsterui
+    app: monster-ui
     test: 'true'
     environment: testing
 spec:
@@ -44,7 +44,7 @@ spec:
   template:
     metadata:
       labels:
-        app: monsterui
+        app: monster-ui
         test: 'true'
         environment: testing
     spec:
@@ -61,40 +61,40 @@ spec:
               apiVersion: v1
               fieldPath: metadata.namespace
       containers:
-      - name: monsterui
-        image: telephoneorg/monsterui:latest
+      - name: monster-ui
+        image: telephoneorg/monster-ui:latest
         imagePullPolicy: IfNotPresent
         env:
         - name: NGINX_PROXY_PROTOCOL
           valueFrom:
             configMapKeyRef:
-              name: monsterui
+              name: monster-ui
               key: nginx.proxy-protocol
         - name: NGINX_LOG_LEVEL
           valueFrom:
             configMapKeyRef:
-              name: monsterui
+              name: monster-ui
               key: nginx.log.level
         - name: MONSTERUI_CROSSBAR_URI
           valueFrom:
             configMapKeyRef:
-              name: monsterui
-              key: monsterui.crossbar.uri
+              name: monster-ui
+              key: monster-ui.crossbar.uri
         - name: MONSTERUI_WEBSOCKET_URI
           valueFrom:
             configMapKeyRef:
-              name: monsterui
-              key: monsterui.websocket.uri
+              name: monster-ui
+              key: monster-ui.websocket.uri
         - name: MONSTERUI_WEBPHONE_URI
           valueFrom:
             configMapKeyRef:
-              name: monsterui
-              key: monsterui.webphone.uri
+              name: monster-ui
+              key: monster-ui.webphone.uri
         - name: MONSTERUI_DISABLE_BRAINTREE
           valueFrom:
             configMapKeyRef:
-              name: monsterui
-              key: monsterui.disable-braintree
+              name: monster-ui
+              key: monster-ui.disable-braintree
         ports:
         - name: http
           containerPort: 80
