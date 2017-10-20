@@ -26,5 +26,8 @@ ns.configure(dict(
     ),
     kube=dict(
         environment='testing'
+    ),
+    hub=dict(
+        images=['monster-ui']
     )
 ))

@@ -3,7 +3,7 @@
 function get-name {
     local name=$(basename $PWD)
     if echo "$name" | grep -q docker; then
-        name=$(echo "$name" | cut -d'-' -f2)
+        name=$(echo "$name" | sed 's/docker-//')
     fi
     echo "$name"
 }
