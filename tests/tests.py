@@ -12,31 +12,31 @@ from testdocker import (
 )
 
 
-class SupCommand(CommandBase):
-    def __init__(self, module, function, *args):
-        cmd = ['sup']
-        cmd.append(module)
-        cmd.append(function)
-        if args:
-            cmd.extend(args)
-        self.cmd = ' '.join(cmd)
+# class SupCommand(CommandBase):
+#     def __init__(self, module, function, *args):
+#         cmd = ['sup']
+#         cmd.append(module)
+#         cmd.append(function)
+#         if args:
+#             cmd.extend(args)
+#         self.cmd = ' '.join(cmd)
 
 
-def select_one(iterable, where, equals):
-    for item in iterable:
-        if getattr(item, where, None) == equals:
-            return item
-            break
+# def select_one(iterable, where, equals):
+#     for item in iterable:
+#         if getattr(item, where, None) == equals:
+#             return item
+#             break
 
 
-def ensure_account_created(containers):
-    kazoo = select_one(containers, where='name', equals='kazoo')
-    cmd = SupCommand('crossbar_maintenance', 'find_account_by_name', 'test')
-    exit_code, output = kazoo.exec(cmd)
-    if exit_code == 0 and '{error,not_found}' in output:
-        cmd = SupCommand('crossbar_maintenance', 'create_account', 'test', 'localhost', 'admin', 'secret')
-        exit_code, output = kazoo.exec(cmd)
-        assert exit_code == 0
+# def ensure_account_created(containers):
+#     kazoo = select_one(containers, where='name', equals='kazoo')
+#     cmd = SupCommand('crossbar_maintenance', 'find_account_by_name', 'test')
+#     exit_code, output = kazoo.exec(cmd)
+#     if exit_code == 0 and '{error,not_found}' in output:
+#         cmd = SupCommand('crossbar_maintenance', 'create_account', 'test', 'localhost', 'admin', 'secret')
+#         exit_code, output = kazoo.exec(cmd)
+#         assert exit_code == 0
 
 
 class TestContainer(ContainerTestMixin, unittest.TestCase):

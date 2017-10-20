@@ -2,7 +2,6 @@ FROM telephoneorg/debian:stretch
 
 MAINTAINER Joe Black <me@joeblack.nyc>
 
-
 ARG     MONSTER_UI_BRANCH
 ARG     MONSTER_APPS
 ARG     MONSTER_APPS_BRANCH
@@ -31,7 +30,7 @@ COPY    build.sh /tmp/
 RUN     /tmp/build.sh
 
 COPY    entrypoint /
-COPY    build/templates /templates
+COPY    templates /templates
 
 ENV     NGINX_LOG_LEVEL warn
 ENV     NGINX_HTTP_CLIENT_MAX_BODY_SIZE 30M

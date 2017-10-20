@@ -38,15 +38,13 @@ def rmf(ctx):
 
 
 @task
-def build(ctx, rc=False):
+def build(ctx):
     cmd = ['docker-compose']
-    if rc:
-        cmd.append('-f docker-compose-rc-test.yaml')
     cmd.append('build')
     ctx.run(' '.join(cmd))
 
 
-@task(pre=[rmf, build, up])
+@task(pre=[rmf, build])
 def rebuild(ctx):
     pass
 

@@ -3,7 +3,7 @@ services:
   monster-ui:
     container_name: monster-ui
     build:
-      context: .
+      context: images/monster-ui
       args:
         TMPLD_VERSION: '0.2.3'
     image: "telephoneorg/monster-ui:${TAG:-latest}"

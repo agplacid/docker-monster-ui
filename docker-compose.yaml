@@ -3,7 +3,7 @@ services:
   monster-ui:
     container_name: monster-ui
     build:
-      context: .
+      context: images/monster-ui
       args:
         TMPLD_VERSION: '0.2.3'
     image: "telephoneorg/monster-ui:${TAG:-latest}"
@@ -25,63 +25,41 @@ services:
     image: telephoneorg/kazoo:latest
     environment:
       ERLANG_HOSTNAME: long
+      ERLANG_COOKIE: test-cookie
       RABBITMQ_HOSTS: rabbitmq.local
       COUCHDB_HOST: couchdb.local
+      COUCHDB_USER: admin
+      COUCHDB_PASS: secret
       KAZOO_LOG_LEVEL: info
-      KAZOO_APPS: blackhole,callflow,cdr,conference,crossbar,doodle,ecallmgr,hangups,hotornot,konami,jonny5,media_mgr,milliwatt,omnipresence,pivot,registrar,reorder,stepswitch,sysconf,teletype,trunkstore,webhooks
-      ERLANG_COOKIE: test-cookie
+      KAZOO_APPS: blackhole,callflow,cdr,conference,crossbar,doodle,ecallmgr,fax,hangups,hotornot,konami,jonny5,media_mgr,milliwatt,omnipresence,pivot,registrar,reorder,stepswitch,sysconf,tasks,teletype,trunkstore,webhooks
     ports:
     - "5555:5555"
     - "8000:8000"
     - "19025:19025"
     - "24517:24517"
+    tmpfs:
+    - /tmp
     networks:
       local:
         aliases:
         - kazoo.local
+    cap_add:
+    - SYS_NICE
+    - SYS_RESOURCE
     depends_on:
       rabbitmq:
         condition: service_healthy
       couchdb:
         condition: service_healthy
-  kamailio:
-    container_name: kamailio
-    hostname: kamailio.valuphone.local
-    image: telephoneorg/kamailio:latest
-    environment:
-      KAMAILIO_LOG_LEVEL: info
-      KAMAILIO_ENABLE_ROLES: websockets,message,presence_query,presence_notify_sync,registrar_sync
-      RABBITMQ_HOSTS: rabbitmq.local
-    ports:
-    - "5060-5061:5060-5061"
-    - "5060:5060/udp"
-    - "5064-5065:5064-5065"
-    - "5064-5065:5064-5065/udp"
-    - "7000-7001:7000-7001"
-    - "7000:7000/udp"
-    cap_add:
-    - IPC_LOCK
-    - NET_ADMIN
-    - NET_RAW
-    - NET_BROADCAST
-    - SYS_NICE
-    - SYS_RESOURCE
-    networks:
-      local:
-        aliases:
-        - kamailio.telephoneorg.local
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      freeswitch:
-        condition: service_healthy
   rabbitmq:
     container_name: rabbitmq
     hostname: rabbitmq.local
+    image: telephoneorg/rabbitmq:latest
     environment:
       ERLANG_HOSTNAME: long
       ERLANG_COOKIE: test-cookie
-    image: telephoneorg/rabbitmq:latest
+    tmpfs:
+    - /var/lib/rabbitmq/mnesia
     networks:
       local:
         aliases:
@@ -96,6 +74,10 @@ services:
       COUCHDB_ADMIN_USER: admin
       COUCHDB_ADMIN_PASS: secret
       ERLANG_COOKIE: test-cookie
+      COUCHDB_SHARDS: 1
+      COUCHDB_LOG_LEVEL: warn
+    volumes_from:
+    - couchdb-data-preset
     ports:
     - "5984:5984"
     - "5986:5986"
@@ -103,31 +85,10 @@ services:
       local:
         aliases:
         - couchdb.local
-  freeswitch:
-    container_name: freeswitch
-    hostname: freeswitch.local
-    image: telephoneorg/freeswitch:latest
-    environment:
-      ERLANG_HOSTNAME: long
-      FREESWITCH_DISABLE_NAT_DETECTION: 'false'
-      FREESWITCH_RTP_PORT_RANGE: 16384-16484
-      ERLANG_COOKIE: test-cookie
-    ports:
-    - "11000:10000"
-    - "11000:10000/udp"
-    - "16384-16484:16384-16484/udp"
-    - "8021:8021"
-    - "8031:8031"
-    networks:
-      local:
-        aliases:
-        - freeswitch.local
     cap_add:
-    - IPC_LOCK
-    - NET_ADMIN
-    - NET_RAW
-    - NET_BROADCAST
     - SYS_NICE
     - SYS_RESOURCE
+  couchdb-data-preset:
+    image: telephoneorg/couchdb-data-preset:latest
 networks:
   local:
