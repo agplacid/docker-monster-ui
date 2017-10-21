@@ -10,7 +10,7 @@ data:
   nginx.log.level: warn
   nginx.http-client.max-body-size: 50M
   nginx.load-balancer.cidr: '0.0.0.0/0'
-  monsterui.crossbar.uri: //api.valuphone.com/v2/
-  monsterui.websocket.uri: //wss.telephoneorg.com
-  monsterui.webphone.uri: //wss.telephoneorg.com:5065
-  monsterui.disable-braintree: 'false'
+  monster-ui.crossbar.uri: //api.valuphone.com/v2/
+  monster-ui.websocket.uri: //wss.telephoneorg.com
+  monster-ui.webphone.uri: //wss.telephoneorg.com:5065
+  monster-ui.disable-braintree: 'false'
