@@ -14,75 +14,26 @@ echo -e 'deb http://nginx.org/packages/debian/ stretch nginx' > \
 apt-get -qq update
 
 
-log::m-info "Installing essentials ..."
-apt-get install -yqq curl ca-certificates git
-
-
 log::m-info "Installing $APP ..."
-apt-get install -qq -y nginx
+apt-get install -yqq ca-certificates curl nginx
 
 
-log::m-info "Installing nodejs v$NODE_VERSION ..."
-curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash -
-apt-get install -yqq nodejs
-
-
-log::m-info "Installing node packages ..."
-npm install -g npm gulp
-
-
-log::m-info "Installing monster-ui ..."
-mkdir -p /var/www/html
+mkdir -p /tmp/monster-ui
 pushd $_
-    git clone -b $MONSTER_UI_BRANCH --single-branch --depth 1 \
-        https://github.com/2600hz/monster-ui monster-ui
-        pushd $_
-            log::m-info  "Installing monster-ui apps ..."
-            pushd src/apps
-                for app in $(echo "${MONSTER_APPS//,/ }"); do
-                    git clone -b $MONSTER_APPS_BRANCH --single-branch \
-                        --depth 1 https://github.com/2600hz/monster-ui-${app} \
-                        $app
-                done
-                popd
-            npm install
-            gulp build-prod
-            pushd dist/apps
-                git clone -b $MONSTER_APP_APIEXPLORER_BRANCH --single-branch \
-                    --depth 1 https://github.com/siplabs/monster-ui-apiexplorer \
-                    apiexplorer
-                rm -rf apiexplorer/.git
-                popd
-
-            npm uninstall
-            find -mindepth 1 -maxdepth 1 -not -name dist -exec rm -rf {} \;
-            mv dist/* .
-            rm -rf dist
-
-            log::m-info "Downloading pdf's from 2600hz ..."
-            curl -sSL -o Editable.LOA.Form.pdf \
-                http://ui.zswitch.net/Editable.LOA.Form.pdf
-            curl -sSL -o Editable.Resporg.Form.pdf \
-                http://ui.zswitch.net/Editable.Resporg.Form.pdf
-            chmod 0777 *.pdf
-
-
-log::m-info "Removing npm & gulp ..."
-npm uninstall -g npm gulp
-rm -rf ~/.{npm,v8*} /tmp/npm*
+    curl -LO https://github.com/telephoneorg/monster-ui-builder/releases/download/v$MONSTER_UI_TAG/monster-ui-debs-all.tar.gz
+    tar xzvf monster-ui*.tar.gz
+    dpkg -i *.deb
+    popd && rm -rf $OLDPWD
 
 
 log::m-info "Cleaning up unneeded packages ..."
-apt-get purge -y --auto-remove \
-    ca-certificates \
-    git \
-    nodejs
+apt-get purge -y --auto-remove ca-certificates
 
 
 log::m-info "Installing python3 ..."
 apt-get install -yqq python3 python3-pip
 # vendor version of pip becomes broken by newer requests, need to upgrade both
-# vendor veresion of six 1.8.0 doesn't support the api being used by pykube
+# vendor version of six 1.8.0 doesn't support the api being used by pykube
 pip3 install --upgrade pip requests six setuptools
 
 

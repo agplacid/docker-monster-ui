@@ -22,6 +22,8 @@ server {
 
     error_page              500 502 503 504  /50x.html;
 
+    add_header 'Access-Control-Allow-Origin' '*';
+
     {% if env.get('NGINX_CACHING') == 'true' %}
     location ~* .(ico|js|json|css|html|png|gif|jpe?g|svg|otf|eot|ttf|woff|woff2|pdf) {
 

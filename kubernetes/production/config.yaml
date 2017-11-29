@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monster-ui
+  labels:
+    app: monster-ui
+    project: telephoneorg
+    environment: production
+data:
+  nginx.log.level: warn
+  nginx.http-client.max-body-size: 20M
+  nginx.load-balancer.cidr: '0.0.0.0/0'
+  monster-ui.crossbar.uri: //api.telephone.org/v2/
+  monster-ui.websocket.uri: wss://wss.telephone.org
+  monster-ui.webphone.uri: wss://sbc.telephone.org:5065
+  monster-ui.disable-braintree: 'true'

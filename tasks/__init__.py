@@ -2,10 +2,10 @@ import os
 
 from invoke import task, Collection
 
-from . import test, dc, kube, sup
+from . import test, dc, hub, kube, sup
 
 
-COLLECTIONS = [test, dc, kube, sup]
+COLLECTIONS = [test, dc, hub, kube, sup]
 
 ns = Collection()
 for c in COLLECTIONS:
@@ -25,7 +25,7 @@ ns.configure(dict(
         shell='bash'
     ),
     kube=dict(
-        environment='testing'
+        environment='production'
     ),
     hub=dict(
         images=['monster-ui']

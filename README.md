@@ -12,10 +12,7 @@ Minimal image with jinja templates rendered by tmpld.  This image uses a custom,
 
 ## Build Environment
 Build environment variables are often used in the build script to bump version numbers and set other options during the docker build phase.  Their values can be overridden using a build argument of the same name.
-* `MONSTER_UI_BRANCH`
-* `MONSTER_APPS_BRANCH`
 * `MONSTER_APPS`
-* `MONSTER_APP_APIEXPLORER_BRANCH`
 * `NODE_VERSION`
 * `TMPLD_VERSION`
 

@@ -4,8 +4,9 @@ owner: monster-ui
 mode: '0644'
 ---
 
-{%- set ROOT_DOMAIN = env.get('MONSTERUI_ROOT_DOMAIN', 'valuphone.com') -%}
-{%- set COMPANY_NAME = env.get('MONSTERUI_COMPANY_NAME', 'Valuphone') -%}
+{%- set ROOT_DOMAIN = env.get('MONSTERUI_ROOT_DOMAIN', 'telephone.org') -%}
+{%- set COMPANY_NAME = env.get('MONSTERUI_COMPANY_NAME', 'telephone.org') -%}
+{%- set reseller_id = kube.get('secret', 'master-account')['data'].get('id') -%}
 
 define(function(require){
 	return {
@@ -73,6 +74,8 @@ define(function(require){
 		#}
 		{%- if env.get('MONSTERUI_RESELLER_ID') %}
 		resellerId: '{{ env['MONSTERUI_RESELLER_ID'] }}',
+		{% elif reseller_id %}
+		resellerId: '{{ reseller_id }}',
 		{% endif -%}
 
 		{# If you are not using Braintree in your environment, you should add

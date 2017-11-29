@@ -31,7 +31,6 @@ spec:
         - name: NAMESPACE
           valueFrom:
             fieldRef:
-              apiVersion: v1
               fieldPath: metadata.namespace
       containers:
       - name: monster-ui
