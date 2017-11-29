@@ -15,6 +15,6 @@ def delete(ctx, environment=None):
     ))
 
 
-@task
-def template(ctx):
-    ctx.run('tmpld templates/*.j2')
+@task(pre=[delete, deploy])
+def redeploy(ctx, environment=None):
+    pass

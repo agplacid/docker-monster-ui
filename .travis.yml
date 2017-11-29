@@ -8,6 +8,7 @@ env:
   - DOCKER_ORG=telephoneorg
   # DOCKER_PASS
   - secure: "kongzYK5caoTnREEQSr7EcSdDOtbrklNKJ4WTZRZRC/fklAylmDE+I23Fb8zkZfFw94LUjAZZ5QDwqjdqnSbddOLZPcd2AFBSQXNgcQlCM2WC3oIgRlHRmOHkOO49uxCLFWAz6wsLKKHTYmA9PYZVvNA73eZs7m/WM8/mjjSTMNar1+FHU7wssm1MMu0TpD3DI5cfb4GU1P7doxDUfAPQVIfQofpHuq/eVV6/D76Bsl8Yjl+ATF0od7y/FeIjnMe4zj0gtmG4JmgBkG25iGT2IVtRpXkWJ+bpiuudQy9K//7pCmNvDPasJSkY8Tq9Loc0VSZOZuYi8U3BAN/j+AHqjgLoYTNhMpzyXlrJDJmvLrlA4FR5bvqsJHlW47pT/vm/+mKG5/xDCNglheyQ04OcLVuF8bMt3fGTlDEYwBicAzRJjOxz89+6S0pqviHDNh0yqdN1ksiuZl6zyGsRc5iNEU3EtZqKLwHCGtPOMOUnTdNPAouK3Ch/6Ged8NRwW1/B2VPutGkH6uZvWFRbyvxydGMNnFCc7h7J/03/l+p3hgFDA2on3w4M5QuJOYDVbMfu+vvolXQ6/RCvRh4D4wCQavEjOxZ0ckcbe1/OVB3f/pofr0VZmTqURVTfuA33sajRET+Jz1onVUayE8+Bzl/glnwAmy8+BXA9lUDMp1BAyI="
+
 notifications:
   email:
     on_success: never
@@ -18,10 +19,7 @@ notifications:
     on_success: always
     on_failure: always
 
-before_install:
-- source scripts/ci/environment.sh
-- pip install --upgrade docker-compose
-- pip install invoke
+before_install: pip install --upgrade docker-compose invoke pyyaml
 
 install: inv dc.build
 
@@ -29,6 +27,6 @@ script: true
 # inv test
 
 after_success:
-- ci-tag-build
-- hub-push
-- hub-update-readme
+- inv ci.tag-build
+- inv hub.push
+- inv hub.update-readme

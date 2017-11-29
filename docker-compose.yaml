@@ -6,7 +6,7 @@ services:
       context: images/monster-ui
       args:
         TMPLD_VERSION: '0.2.3'
-    image: "telephoneorg/monster-ui:${TAG:-latest}"
+    image: "telephoneorg/monster-ui:${DOCKER_TAG:-latest}"
     environment:
       NGINX_PROXY_PROTOCOL: 'false'
       NGINX_LOG_LEVEL: warn

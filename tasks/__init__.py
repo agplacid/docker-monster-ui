@@ -1,33 +1,15 @@
-import os
+import sys
 
-from invoke import task, Collection
+from invoke import Collection, task
 
-from . import test, dc, hub, kube, sup
+from . import admin, ci, dc, hub, kube, test, tmpl, util
 
 
-COLLECTIONS = [test, dc, hub, kube, sup]
+config = util.build_config('config.yaml')
+util.export_docker_tag()
 
-ns = Collection()
-for c in COLLECTIONS:
-    ns.add_collection(c)
+namespace = Collection()
+for mod in config['modules']:
+    namespace.add_collection(globals()[mod])
 
-ns.configure(dict(
-    project='monster-ui',
-    repo='docker-monster-ui',
-    pwd=os.getcwd(),
-    docker=dict(
-        user=os.getenv('DOCKER_USER'),
-        org=os.getenv('DOCKER_ORG', os.getenv('DOCKER_USER', 'telephoneorg')),
-        name='monster-ui',
-        tag='%s/%s:latest' % (
-            os.getenv('DOCKER_ORG', os.getenv('DOCKER_USER', 'telephoneorg')), 'monster-ui'
-        ),
-        shell='bash'
-    ),
-    kube=dict(
-        environment='production'
-    ),
-    hub=dict(
-        images=['monster-ui']
-    )
-))
+namespace.configure(config)
