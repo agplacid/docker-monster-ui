@@ -56,7 +56,9 @@ define(function(require){
 			{# Set Project Phonebook URL if you want to use it to search phone
 			   numbers
 			#}
+			{%- if env.get('MONSTERUI_PHONEBOOK_URI') %}
 			phonebook: '{{ env.get('MONSTERUI_PHONEBOOK_URI', '') }}'
+			{% endif -%}
 		},
 
 		{# The kazooClusterId is the cluster id generated when creating a

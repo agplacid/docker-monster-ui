@@ -5,6 +5,8 @@ services:
     build:
       context: images/monster-ui
       args:
+        MONSTER_UI_TAG: '4.1.56'
+        MONSTER_APPS: accounts,callflows,fax,numbers,pbxs,voip,voicemails,webhooks
         TMPLD_VERSION: '0.2.3'
     image: "telephoneorg/monster-ui:${DOCKER_TAG:-latest}"
     environment:
