@@ -15,19 +15,19 @@ apt-get -qq update
 
 
 log::m-info "Installing $APP ..."
-apt-get install -yqq ca-certificates curl nginx
+apt-get install -yqq curl nginx
 
 
-mkdir -p /tmp/monster-ui
-pushd $_
-    curl -LO https://github.com/telephoneorg/monster-ui-builder/releases/download/v$MONSTER_UI_TAG/monster-ui-debs-all.tar.gz
-    tar xzvf monster-ui*.tar.gz
-    dpkg -i *.deb
-    popd && rm -rf $OLDPWD
+# mkdir -p /tmp/monster-ui
+# pushd $_
+#     curl -LO https://github.com/telephoneorg/monster-ui-builder/releases/download/v$MONSTER_UI_TAG/monster-ui-debs-all.tar.gz
+#     tar xzvf monster-ui*.tar.gz
+#     dpkg -i *.deb
+#     popd && rm -rf $OLDPWD
 
 
-log::m-info "Cleaning up unneeded packages ..."
-apt-get purge -y --auto-remove ca-certificates
+# log::m-info "Cleaning up unneeded packages ..."
+# apt-get purge -y --auto-remove ca-certificates
 
 
 log::m-info "Installing python3 ..."
@@ -59,13 +59,12 @@ EOF
 log::m-info "Setting Ownership & Permissions ..."
 chown -R $USER:$USER \
     ~ \
-    /var/www/html \
     /usr/share/nginx \
     /etc/default/nginx* \
     /var/cache/nginx \
     /var/log/nginx
 
-chmod -R 0755 /var/www/html/monster-ui
+# chmod -R 0755 /var/www/html/monster-ui
 
 
 log::m-info "Cleaning up ..."

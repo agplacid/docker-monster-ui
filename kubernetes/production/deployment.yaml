@@ -32,6 +32,25 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+      - name: dl-assets
+        image: telephoneorg/kzutil:latest
+        imagePullPolicy: IfNotPresent
+        args:
+        - dl-assets
+        env:
+        - name: KAZOO_SOUNDS_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: kazoo
+              key: kzutil.sounds.version
+        - name: MONSTER_APPS_TAG
+          valueFrom:
+            configMapKeyRef:
+              name: monster-ui
+              key: kzutil.monster-apps.tag
+        volumeMounts:
+        - name: monster-ui
+          mountPath: /var/www/html/monster-ui
       containers:
       - name: monster-ui
         image: telephoneorg/monster-ui:latest
@@ -75,6 +94,9 @@ spec:
         ports:
         - name: http
           containerPort: 80
+        volumeMounts:
+        - name: monster-ui
+          mountPath: /var/www/html/monster-ui
         resources:
           requests:
             cpu: 1
@@ -98,4 +120,7 @@ spec:
           timeoutSeconds: 3
           successThreshold: 1
           failureThreshold: 5
+      volumes:
+      - name: monster-ui
+        emptyDir: {}
       restartPolicy: Always
