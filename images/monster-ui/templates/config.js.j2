@@ -146,13 +146,13 @@ define(function(require){
 				{# Link used when user click on the top-right interrogation
 				   mark.
 				#}
-				help: '{{ env.get('MONSTERUI_SUPPORT_URL', '//support.{}'.format(ROOT_DOMAIN)) }}',
+				help: '{{ env.get('MONSTERUI_SUPPORT_URL', '//support.{}'.format(ROOT_DOMAIN)) }}'
 
 				{# Link used when clicking on logging out. By default the UI
 				   logs out the user after confirmation, but some people wanted
 				   to override that behavior
 				#}
-				logout: '{{ env.get('MONSTERUI_LOGOUT_URL', 'https://duckduckgo.com') }}'
+				{# logout: '{{ env.get('MONSTERUI_LOGOUT_URL', 'https://duckduckgo.com') }}' #}
 			},
 
 			{# In the Port Manager, we use a LOA Form link. By changing this

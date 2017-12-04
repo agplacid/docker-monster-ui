@@ -34,20 +34,27 @@ spec:
               fieldPath: metadata.namespace
       - name: dl-assets
         image: telephoneorg/kzutil:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         args:
         - dl-assets
+        - monster-apps-core
+        - monster-apps-custom
         env:
-        - name: KAZOO_SOUNDS_VERSION
-          valueFrom:
-            configMapKeyRef:
-              name: kazoo
-              key: kzutil.sounds.version
-        - name: MONSTER_APPS_TAG
+        - name: MONSTER_APPS_CORE_TAG
           valueFrom:
             configMapKeyRef:
               name: monster-ui
-              key: kzutil.monster-apps.tag
+              key: kzutil.monster-apps.core.tag
+        - name: MONSTER_APPS_CUSTOM_TAG
+          valueFrom:
+            configMapKeyRef:
+              name: monster-ui
+              key: kzutil.monster-apps.custom.tag
+        - name: GITHUB_OAUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github
+              key: token
         volumeMounts:
         - name: monster-ui
           mountPath: /var/www/html/monster-ui

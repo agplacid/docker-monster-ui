@@ -14,4 +14,5 @@ data:
   monster-ui.websocket.uri: wss://wss.telephone.org
   monster-ui.webphone.uri: wss://sbc.telephone.org:5065
   monster-ui.disable-braintree: 'true'
-  kzutil.monster-apps.tag: '4.1.56'
+  kzutil.monster-apps.core.tag: '4.1.56'
+  kzutil.monster-apps.custom.tag: '4.2-0'
