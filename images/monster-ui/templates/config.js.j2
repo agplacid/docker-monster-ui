@@ -131,6 +131,10 @@ define(function(require){
 			{# Application title, displayed in the browser tab #}
 			applicationTitle: '{{ env.get('MONSTERUI_APPLICATION_TITLE', '{}, Inc'.format(COMPANY_NAME)) }}',
 
+			{%- if env.get('MONSTERUI_PROVISIONER_DISPLAYED_URL') %}
+			provisioner_displayed_url: '{{ env['MONSTERUI_PROVISIONER_DISPLAYED_URL'] }}',
+			{% endif -%}
+
 			{# E-mail address used to report calls in SmartPBX's Call Logs.
 			   "Report Call" link won't be displayed if no address is specified.
 

@@ -98,6 +98,21 @@ spec:
             configMapKeyRef:
               name: monster-ui
               key: monster-ui.disable-braintree
+        - name: MONSTERUI_PROVISIONER_URI
+          valueFrom:
+            configMapKeyRef:
+              name: monster-ui
+              key: monster-ui.provisioner.2600hz.uri
+        - name: MONSTERUI_KAZOO_CLUSTER_ID
+          valueFrom:
+            configMapKeyRef:
+              name: monster-ui
+              key: monster-ui.kazoo.cluster-id
+        - name: MONSTERUI_PROVISIONER_DISPLAYED_URL
+          valueFrom:
+            configMapKeyRef:
+              name: monster-ui
+              key: monster-ui.provisioner.displayed.uri
         ports:
         - name: http
           containerPort: 80

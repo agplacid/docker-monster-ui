@@ -11,6 +11,9 @@ data:
   nginx.http-client.max-body-size: 20M
   nginx.load-balancer.cidr: '0.0.0.0/0'
   monster-ui.crossbar.uri: //api.telephone.org/v2/
+  monster-ui.provisioner.2600hz.uri: //p3.zswitch.net/
+  monster-ui.provisioner.displayed.uri: //p.telephone.org
+  monster-ui.kazoo.cluster-id: a8c38fdd14a3854c533e0aa2a7d945c9
   monster-ui.websocket.uri: wss://wss.telephone.org
   monster-ui.webphone.uri: wss://sbc.telephone.org:5065
   monster-ui.disable-braintree: 'true'
