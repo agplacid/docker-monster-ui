@@ -50,7 +50,7 @@ define(function(require){
 			     'wss://kamailio-url:5065'
 			#}
 			{%- if env.get('MONSTERUI_WEBPHONE_URI') %}
-			socketWebphone: '{{ env['MONSTERUI_WEBPHONE_URI'] }}',
+			socketWebphone: '{{ env['MONSTERUI_WEBPHONE_URI'] }}'
 			{% endif -%}
 
 			{# Set Project Phonebook URL if you want to use it to search phone
