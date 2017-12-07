@@ -131,7 +131,7 @@ define(function(require){
 			{# Application title, displayed in the browser tab #}
 			applicationTitle: '{{ env.get('MONSTERUI_APPLICATION_TITLE', '{}, Inc'.format(COMPANY_NAME)) }}',
 
-			{%- if env.get('MONSTERUI_PROVISIONER_DISPLAYED_URL') %}
+			{% if env.get('MONSTERUI_PROVISIONER_DISPLAYED_URL') %}
 			provisioner_displayed_url: '{{ env['MONSTERUI_PROVISIONER_DISPLAYED_URL'] }}',
 			{% endif -%}
 
