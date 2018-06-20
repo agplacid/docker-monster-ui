@@ -1,4 +1,4 @@
-version: '2.3'
+version: '3'
 services:
   monster-ui:
     container_name: monster-ui
@@ -20,16 +20,16 @@ services:
     ports:
     - "80:80"
     networks:
-      local:
+      kazoo:
   kazoo:
     container_name: kazoo
     hostname: kazoo.local
     image: telephoneorg/kazoo:latest
     environment:
       ERLANG_HOSTNAME: long
-      ERLANG_COOKIE: test-cookie
-      RABBITMQ_HOSTS: rabbitmq.local
-      COUCHDB_HOST: couchdb.local
+      ERLANG_COOKIE: change-me
+      RABBITMQ_HOSTS: rabbitmq.kazoo
+      COUCHDB_HOST: couchdb.kazoo
       COUCHDB_USER: admin
       COUCHDB_PASS: secret
       KAZOO_LOG_LEVEL: info
@@ -42,9 +42,9 @@ services:
     tmpfs:
     - /tmp
     networks:
-      local:
+      kazoo:
         aliases:
-        - kazoo.local
+        - kazoo.kazoo
     cap_add:
     - SYS_NICE
     - SYS_RESOURCE
@@ -55,27 +55,27 @@ services:
         condition: service_healthy
   rabbitmq:
     container_name: rabbitmq
-    hostname: rabbitmq.local
+    hostname: rabbitmq.kazoo
     image: telephoneorg/rabbitmq:latest
     environment:
       ERLANG_HOSTNAME: long
-      ERLANG_COOKIE: test-cookie
+      ERLANG_COOKIE: change-me
     tmpfs:
     - /var/lib/rabbitmq/mnesia
     networks:
-      local:
+      kazoo:
         aliases:
-        - rabbitmq.local
+        - rabbitmq.kazoo
   couchdb:
     container_name: couchdb
-    hostname: couchdb.local
+    hostname: couchdb.kazoo
     image: telephoneorg/couchdb:latest
     environment:
       ERLANG_HOSTNAME: long
       COUCHDB_DEV_INIT: 'true'
       COUCHDB_ADMIN_USER: admin
       COUCHDB_ADMIN_PASS: secret
-      ERLANG_COOKIE: test-cookie
+      ERLANG_COOKIE: chnage-me
       COUCHDB_SHARDS: 1
       COUCHDB_LOG_LEVEL: warn
     volumes_from:
@@ -84,13 +84,13 @@ services:
     - "5984:5984"
     - "5986:5986"
     networks:
-      local:
+      kazoo:
         aliases:
-        - couchdb.local
+        - couchdb.kazoo
     cap_add:
     - SYS_NICE
     - SYS_RESOURCE
   couchdb-data-preset:
     image: telephoneorg/couchdb-data-preset:latest
 networks:
-  local:
+  kazoo:
